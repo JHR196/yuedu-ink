@@ -8,8 +8,13 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
+import android.view.View
 import android.widget.CheckBox
 import android.widget.LinearLayout
+import android.widget.TextView
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import androidx.core.content.ContextCompat
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -38,7 +43,6 @@ import io.legado.app.lib.dialogs.alert
 import io.legado.app.lib.dialogs.selector
 import io.legado.app.lib.theme.accentColor
 import io.legado.app.lib.theme.backgroundColor
-import io.legado.app.lib.theme.bottomBackground
 import io.legado.app.lib.theme.getPrimaryTextColor
 import io.legado.app.model.BookCover
 import io.legado.app.model.remote.RemoteBookWebDav
@@ -159,9 +163,10 @@ class BookInfoActivity :
         binding.refreshLayout?.setColorSchemeColors(accentColor)
         binding.arcView.setBgColor(backgroundColor)
         binding.llInfo.setBackgroundColor(backgroundColor)
-        binding.flAction.setBackgroundColor(bottomBackground)
+        upHeroFade()
+        binding.flAction.setBackgroundColor(ColorUtils.withAlpha(backgroundColor, 0.94f))
         binding.flAction.applyNavigationBarPadding()
-        binding.tvShelf.setTextColor(getPrimaryTextColor(ColorUtils.isColorLight(bottomBackground)))
+        binding.tvShelf.setTextColor(getPrimaryTextColor(ColorUtils.isColorLight(backgroundColor)))
         binding.tvToc.text = getString(R.string.toc_s, getString(R.string.loading))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             binding.tvIntro.revealOnFocusHint = false
@@ -348,6 +353,7 @@ class BookInfoActivity :
         showCover(book)
         tvName.text = book.name
         tvAuthor.text = getString(R.string.author_show, book.getRealAuthor())
+        tvAuthor.visibility = if (book.getRealAuthor().isBlank()) View.GONE else View.VISIBLE
         tvOrigin.text = getString(R.string.origin_show, book.originName)
         tvLasted.text = getString(R.string.lasted_show, book.latestChapterTitle)
         tvIntro.text = book.getDisplayIntro()
@@ -355,6 +361,37 @@ class BookInfoActivity :
         upTvBookshelf()
         upKinds(book)
         upGroup(book.group)
+    }
+
+    /** 纸墨：封面模糊背景以多段渐变融入页面底色，无硬边 */
+    private fun upHeroFade() {
+        val bg = backgroundColor
+        fun fade(vararg alphas: Float) = GradientDrawable(
+            GradientDrawable.Orientation.TOP_BOTTOM,
+            alphas.map { ColorUtils.withAlpha(bg, it) }.toIntArray()
+        )
+        val night = androidx.core.graphics.ColorUtils.calculateLuminance(bg) < 0.5
+        if (binding.refreshLayout != null) {
+            binding.bgBook.alpha = if (night) 0.42f else 0.55f
+            binding.inkAutoActivityBookInfo1.background =
+                fade(0f, 0f, 0.04f, 0.14f, 0.32f, 0.56f, 0.8f, 0.95f, 1f)
+            binding.bk2HeroFade?.background = fade(0f, 0.25f, 0.6f, 0.88f, 1f)
+        }
+    }
+
+    /** 纸墨：分类/字数标签改为朱砂细描边胶囊 */
+    private fun styleKindLabels() = binding.run {
+        val accent = ContextCompat.getColor(this@BookInfoActivity, R.color.ink_accent)
+        for (i in 0 until lbKind.childCount) {
+            val tv = lbKind.getChildAt(i) as? TextView ?: continue
+            tv.setBackgroundResource(R.drawable.bk2_label_outline)
+            tv.setTextColor(accent)
+            tv.typeface = Typeface.MONOSPACE
+            tv.letterSpacing = 0.1f
+            tv.includeFontPadding = false
+            tv.setPadding(7.dpToPx(), 3.dpToPx(), 7.dpToPx(), 3.dpToPx())
+            (tv.layoutParams as? LinearLayout.LayoutParams)?.setMargins(3.dpToPx(), 0, 3.dpToPx(), 0)
+        }
     }
 
     private fun upKinds(book: Book) = binding.run {
@@ -373,7 +410,9 @@ class BookInfoActivity :
                 lbKind.gone()
             } else {
                 lbKind.visible()
+                lbKind.textSize = 10f
                 lbKind.setLabels(kinds)
+                styleKindLabels()
             }
         }
     }

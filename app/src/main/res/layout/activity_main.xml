@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 根布局不设背景：悬浮导航四周透出窗口背景（即主题 backgroundColor），与页面底色一致，无色带 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     android:orientation="vertical">
 
     <androidx.viewpager.widget.ViewPager
@@ -13,18 +16,18 @@
         android:layout_weight="1"
         tools:ignore="SpeakableTextPresentCheck" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:background="@color/ink_line" />
-
+    <!-- 悬浮胶囊导航：背景（圆角 32dp + 0.5dp ink_line 描边）在 ThemeBottomNavigationVIew 中按主题色运行时生成 -->
     <io.legado.app.lib.theme.view.ThemeBottomNavigationVIew
         android:id="@+id/bottom_navigation_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/ink_paper"
-        android:minHeight="50dp"
-        app:itemActiveIndicatorStyle="@color/transparent"
+        android:layout_height="64dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="12dp"
+        app:itemActiveIndicatorStyle="@style/ink2_NavActiveIndicator"
+        app:itemPaddingBottom="8dp"
+        app:itemPaddingTop="8dp"
         app:itemTextAppearanceActive="@style/ink_NavLabel"
         app:itemTextAppearanceInactive="@style/ink_NavLabel"
         app:labelVisibilityMode="labeled"

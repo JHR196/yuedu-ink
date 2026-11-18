@@ -4,75 +4,99 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center"
-    android:orientation="vertical"
+    android:background="@drawable/bg_item_focused_on_tv"
     android:focusable="true"
-    android:background="@drawable/bg_item_focused_on_tv">
+    android:gravity="center"
+    android:orientation="vertical">
 
+    <!-- 书源卡片 -->
     <LinearLayout
-        android:id="@+id/ll_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="14dp"
-        android:paddingRight="10dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:background="@drawable/shf_find_group_bg"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:background="@drawable/ink2_bg_source_card"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_name"
-        android:fontFamily="serif"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@color/ink_text"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            tools:text="起点中文" />
-
-        <io.legado.app.ui.widget.anima.RotateLoading
-            android:id="@+id/rotate_loading"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:visibility="gone"
-            android:layout_gravity="center"
-            android:layout_marginRight="4dp"
-            app:loading_width="1dp"
-            tools:ignore="RtlHardcoded" />
-
-        <ImageView
-            android:id="@+id/iv_status"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_arrow_right"
-            app:tint="@color/ink_text_sub"
-            tools:ignore="ContentDescription" />
-
-    </LinearLayout>
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="8dp"
-        android:paddingRight="8dp"
-        android:layout_gravity="center">
-
-        <com.google.android.flexbox.FlexboxLayout
-            android:id="@+id/flexbox"
+        <LinearLayout
+            android:id="@+id/ll_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:overScrollMode="never"
-            android:padding="3dp"
-            android:layout_marginTop="8dp"
-            android:visibility="gone"
-            app:dividerDrawable="@drawable/shape_space_divider"
-            app:flexDirection="row"
-            app:flexWrap="wrap"
-            app:showDivider="middle" />
+            android:background="?attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingLeft="14dp"
+            android:paddingTop="14dp"
+            android:paddingRight="14dp"
+            android:paddingBottom="14dp">
 
-    </FrameLayout>
+            <TextView
+                android:id="@+id/ink2_tv_monogram"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="@drawable/ink2_bg_monogram"
+                android:fontFamily="serif"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:textColor="@color/ink_accent"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="起" />
+
+            <TextView
+                android:id="@+id/tv_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:fontFamily="serif"
+                android:maxLines="1"
+                android:textColor="@color/ink_text"
+                android:textSize="16sp"
+                tools:text="起点中文" />
+
+            <io.legado.app.ui.widget.anima.RotateLoading
+                android:id="@+id/rotate_loading"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:layout_marginRight="6dp"
+                android:visibility="gone"
+                app:loading_width="1dp"
+                tools:ignore="RtlHardcoded" />
+
+            <ImageView
+                android:id="@+id/iv_status"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_arrow_right"
+                app:tint="@color/ink_text_faint"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp">
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/flexbox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:padding="3dp"
+                android:visibility="gone"
+                app:dividerDrawable="@drawable/shape_space_divider"
+                app:flexDirection="row"
+                app:flexWrap="wrap"
+                app:showDivider="middle" />
+
+        </FrameLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

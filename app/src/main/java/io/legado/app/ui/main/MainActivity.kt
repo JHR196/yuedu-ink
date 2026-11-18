@@ -31,7 +31,6 @@ import io.legado.app.help.config.LocalConfig
 import io.legado.app.help.coroutine.Coroutine
 import io.legado.app.help.storage.Backup
 import io.legado.app.lib.dialogs.alert
-import io.legado.app.lib.theme.elevation
 import io.legado.app.lib.theme.primaryColor
 import io.legado.app.service.BaseReadAloudService
 import io.legado.app.ui.about.CrashLogsDialog
@@ -43,6 +42,7 @@ import io.legado.app.ui.main.my.MyFragment
 import io.legado.app.ui.main.rss.RssFragment
 import io.legado.app.ui.widget.dialog.TextDialog
 import io.legado.app.ui.widget.text.BadgeView
+import io.legado.app.utils.dpToPx
 import io.legado.app.utils.isCreated
 import io.legado.app.utils.navigationBarHeight
 import io.legado.app.utils.observeEvent
@@ -55,7 +55,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import splitties.views.bottomPadding
 import kotlin.coroutines.resume
 
 /**
@@ -181,7 +180,7 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         viewPagerMain.offscreenPageLimit = 3
         viewPagerMain.adapter = adapter
         viewPagerMain.addOnPageChangeListener(PageChangeCallback())
-        bottomNavigationView.elevation = elevation
+        bottomNavigationView.elevation = if (AppConfig.isEInkMode) 0f else 6f.dpToPx()
         bottomNavigationView.setOnNavigationItemSelectedListener(this@MainActivity)
         bottomNavigationView.setOnNavigationItemReselectedListener(this@MainActivity)
         if (AppConfig.isEInkMode) {
@@ -189,7 +188,14 @@ class MainActivity : VMBaseActivity<ActivityMainBinding, MainViewModel>(),
         }
         bottomNavigationView.setOnApplyWindowInsetsListenerCompat { view, windowInsets ->
             val height = windowInsets.navigationBarHeight
-            view.bottomPadding = height
+            // 悬浮胶囊导航：系统导航栏高度加到外边距上，而不是挤压胶囊内部
+            (view.layoutParams as? ViewGroup.MarginLayoutParams)?.let { lp ->
+                val bottom = 12f.dpToPx().toInt() + height
+                if (lp.bottomMargin != bottom) {
+                    lp.bottomMargin = bottom
+                    view.layoutParams = lp
+                }
+            }
             windowInsets.inset(0, 0, 0, height)
         }
     }

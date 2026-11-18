@@ -50,15 +50,23 @@ class ExploreAdapter(context: Context, val callBack: CallBack) :
     ) {
         binding.run {
             if (holder.layoutPosition == itemCount - 1) {
-                root.setPadding(16.dpToPx(), 12.dpToPx(), 16.dpToPx(), 12.dpToPx())
+                root.setPadding(16.dpToPx(), 6.dpToPx(), 16.dpToPx(), 12.dpToPx())
             } else {
-                root.setPadding(16.dpToPx(), 12.dpToPx(), 16.dpToPx(), 0)
+                root.setPadding(16.dpToPx(), 6.dpToPx(), 16.dpToPx(), 0)
             }
             if (payloads.isEmpty()) {
                 tvName.text = item.bookSourceName
+                ink2TvMonogram.text = monogramOf(item.bookSourceName)
             }
-            if (exIndex == holder.layoutPosition) {
-                ivStatus.setImageResource(R.drawable.ic_arrow_down)
+            val expanded = exIndex == holder.layoutPosition
+            val targetRotation = if (expanded) 90f else 0f
+            if (payloads.isEmpty()) {
+                ivStatus.animate().cancel()
+                ivStatus.rotation = targetRotation
+            } else if (ivStatus.rotation != targetRotation) {
+                ivStatus.animate().rotation(targetRotation).setDuration(180).start()
+            }
+            if (expanded) {
                 rotateLoading.loadingColor = context.accentColor
                 rotateLoading.visible()
                 if (scrollTo >= 0) {
@@ -76,12 +84,24 @@ class ExploreAdapter(context: Context, val callBack: CallBack) :
                     }
                 }
             } else kotlin.runCatching {
-                ivStatus.setImageResource(R.drawable.ic_arrow_right)
                 rotateLoading.gone()
                 recyclerFlexbox(flexbox)
                 flexbox.gone()
             }
         }
+    }
+
+    /** 书源名首个可见字符（跳过 emoji/符号，取首个汉字或字母数字） */
+    private fun monogramOf(name: String): String {
+        var i = 0
+        while (i < name.length) {
+            val cp = name.codePointAt(i)
+            if (Character.isLetterOrDigit(cp)) {
+                return String(Character.toChars(cp)).uppercase()
+            }
+            i += Character.charCount(cp)
+        }
+        return if (name.isBlank()) "" else String(Character.toChars(name.trim().codePointAt(0)))
     }
 
     private fun upKindList(flexbox: FlexboxLayout, sourceUrl: String, kinds: List<ExploreKind>) {

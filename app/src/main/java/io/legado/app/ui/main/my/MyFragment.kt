@@ -60,8 +60,15 @@ class MyFragment() : BaseFragment(R.layout.fragment_my_config), MainFragmentInte
     override fun onFragmentCreated(view: View, savedInstanceState: Bundle?) {
         setSupportToolbar(binding.titleBar.toolbar)
         viewLifecycleOwner.lifecycleScope.launch {
-            val count = withContext(Dispatchers.IO) { appDb.bookDao.allBookCount }
-            binding.inkTvMyMeta.text = getString(R.string.ink_my_meta, count)
+            val stats = withContext(Dispatchers.IO) {
+                Triple(
+                    appDb.bookDao.allBookCount,
+                    appDb.bookSourceDao.allCount(),
+                    appDb.readRecordDao.allShow.size
+                )
+            }
+            binding.inkTvMyMeta.text =
+                getString(R.string.ink2_my_stats, stats.first, stats.second, stats.third)
         }
         val fragmentTag = "prefFragment"
         var preferenceFragment = childFragmentManager.findFragmentByTag(fragmentTag)

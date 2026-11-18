@@ -3,6 +3,7 @@ package io.legado.app.ui.main.bookshelf.shelf3d
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapShader
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
@@ -46,6 +47,7 @@ import io.legado.app.utils.spToPx
 import io.legado.app.utils.textHeight
 import io.legado.app.utils.toStringArray
 import kotlin.math.abs
+import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
@@ -69,7 +71,11 @@ class Shelf3DView @JvmOverloads constructor(
         val cover: String?,
         val origin: String?,
         val info: String,
-        val data: Any
+        val data: Any,
+        /** 来源名，本地书为「本地」 */
+        val source: String = "",
+        /** 阅读进度 0..1，未知为负 */
+        val progress: Float = -1f
     )
 
     interface Callback {
@@ -109,16 +115,39 @@ class Shelf3DView @JvmOverloads constructor(
     private val shadePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val shadowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val bgPaint = Paint()
+    private val glowPaint = Paint()
+    private val vignettePaint = Paint()
+    private val grainPaint = Paint()
+    private val blendPaint = Paint()
+    private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { strokeCap = Paint.Cap.ROUND }
+    private val ribbonPath = Path()
+    private val faintColor = if (dark) 0xFF5E574E.toInt() else 0xFFB8AD9C.toInt()
+    private val authorPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+        textSize = 13f.spToPx()
+        color = subColor
+        textAlign = Paint.Align.CENTER
+    }
+    private val pctPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+        typeface = Typeface.MONOSPACE
+        textSize = 10f.spToPx()
+        color = accent
+        letterSpacing = 0.1f
+    }
+    // 底部书签尺
+    private var rulerY = 0f
+    private var rulerX0 = 0f
+    private var rulerStep = 0f
+    private var scrubbing = false
     private val plankPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val titlePaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
         typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
-        textSize = 19f.spToPx()
+        textSize = 22f.spToPx()
         color = inkColor
         textAlign = Paint.Align.CENTER
     }
     private val infoPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
-        textSize = 12.5f.spToPx()
-        color = subColor
+        textSize = 12f.spToPx()
+        color = faintColor
         textAlign = Paint.Align.CENTER
     }
     private val indexPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -227,7 +256,7 @@ class Shelf3DView @JvmOverloads constructor(
         gap = bookW * 0.5f + bookT * 1.1f + 10f.dpToPx()
         unitPx = gap * 0.8f
         eyeF = w * 1.8f
-        baseY = paddingTop + h * 0.40f
+        baseY = paddingTop + h * 0.36f
         floorY = baseY + bookH * 0.5f
         bgPaint.shader = LinearGradient(
             0f, 0f, 0f, h.toFloat(),
@@ -238,9 +267,43 @@ class Shelf3DView @JvmOverloads constructor(
         shadowPaint.shader = RadialGradient(
             0f, 0f, 1f, 0x40000000, 0x00000000, Shader.TileMode.CLAMP
         )
+        // 台灯光晕：书的上方偏暖的一团光
+        glowPaint.shader = RadialGradient(
+            w / 2f, baseY - bookH * 0.6f, max(w, h) * 0.6f,
+            intArrayOf(
+                if (dark) 0x30FFD7A0 else 0x66FFFFFF,
+                if (dark) 0x12FFC880 else 0x26FFF4DC,
+                0x00000000
+            ),
+            floatArrayOf(0f, 0.45f, 1f), Shader.TileMode.CLAMP
+        )
+        vignettePaint.shader = RadialGradient(
+            w / 2f, h * 0.42f, max(w, h) * 0.78f,
+            intArrayOf(0x00000000, 0x00000000, if (dark) 0x70000000 else 0x244A3A20),
+            floatArrayOf(0f, 0.55f, 1f), Shader.TileMode.CLAMP
+        )
+        grainPaint.shader = BitmapShader(grain, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
+        rulerY = h - paddingBottom - 34f.dpToPx()
+        // 底部融入页面背景，与悬浮底栏周围的底色衔接
+        val bg = context.backgroundColor
+        blendPaint.shader = LinearGradient(
+            0f, h - 90f.dpToPx(), 0f, h.toFloat(),
+            ColorUtils.setAlphaComponent(bg, 0), bg, Shader.TileMode.CLAMP
+        )
         coverCache.evictAll()
         spineCache.evictAll()
         requested.clear()
+    }
+
+    /** 纸纹：稀疏的细小颗粒，平铺在墙面上 */
+    private val grain: Bitmap by lazy {
+        val n = 96
+        val rnd = java.util.Random(7)
+        val px = IntArray(n * n) {
+            val a = if (rnd.nextFloat() < 0.35f) rnd.nextInt(if (dark) 10 else 16) else 0
+            if (dark) Color.argb(a, 255, 240, 220) else Color.argb(a, 60, 40, 20)
+        }
+        Bitmap.createBitmap(px, n, n, Bitmap.Config.ARGB_8888)
     }
 
     // ---------- 几何 ----------
@@ -328,7 +391,13 @@ class Shelf3DView @JvmOverloads constructor(
     // ---------- 绘制 ----------
 
     override fun onDraw(canvas: Canvas) {
-        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
+        val fw = width.toFloat()
+        val fh = height.toFloat()
+        canvas.drawRect(0f, 0f, fw, fh, bgPaint)
+        canvas.drawRect(0f, 0f, fw, fh, glowPaint)
+        canvas.drawRect(0f, 0f, fw, fh, grainPaint)
+        canvas.drawRect(0f, 0f, fw, fh, vignettePaint)
+        canvas.drawRect(0f, fh - 90f.dpToPx(), fw, fh, blendPaint)
         if (items.isEmpty() || bookW <= 0f) return
         drawPlank(canvas, floorY)
 
@@ -349,22 +418,47 @@ class Shelf3DView @JvmOverloads constructor(
         for (n in 0 until slotCount) drawShadow(canvas, slotCorners[n])
         for (n in 0 until slotCount) drawBook(canvas, slotIndex[n], slotCorners[n])
         drawInfo(canvas, floorY)
+        drawRuler(canvas)
     }
 
+    private val plankFront get() = 13f.dpToPx()
+
+    /** 带厚度的木质层板：后方台面、前沿高光、正面木纹、下方投影 */
     private fun drawPlank(canvas: Canvas, floorY: Float) {
-        val plankH = 7f.dpToPx()
+        val w = width.toFloat()
+        val depth = 9f.dpToPx()
+        val top = floorY + 1f.dpToPx()
+        val bottom = top + plankFront
         plankPaint.shader = LinearGradient(
-            0f, floorY, 0f, floorY + plankH,
-            if (dark) 0xFF3A3530.toInt() else 0xFFD8CCB4.toInt(),
-            if (dark) 0xFF24211E.toInt() else 0xFFBFB197.toInt(),
+            0f, floorY - depth, 0f, top,
+            if (dark) 0xFF2A2621.toInt() else 0xFFE6DAC3.toInt(),
+            if (dark) 0xFF3B342D.toInt() else 0xFFD5C4A5.toInt(),
             Shader.TileMode.CLAMP
         )
-        canvas.drawRect(0f, floorY, width.toFloat(), floorY + plankH, plankPaint)
+        canvas.drawRect(0f, floorY - depth, w, top, plankPaint)
         plankPaint.shader = LinearGradient(
-            0f, floorY + plankH, 0f, floorY + plankH + 18f.dpToPx(),
-            0x22000000, 0x00000000, Shader.TileMode.CLAMP
+            0f, top, 0f, bottom,
+            if (dark) 0xFF4A3E32.toInt() else 0xFFC8B28B.toInt(),
+            if (dark) 0xFF29221C.toInt() else 0xFFA48C64.toInt(),
+            Shader.TileMode.CLAMP
         )
-        canvas.drawRect(0f, floorY + plankH, width.toFloat(), floorY + plankH + 18f.dpToPx(), plankPaint)
+        canvas.drawRect(0f, top, w, bottom, plankPaint)
+        // 木纹：几道极淡的细线
+        linePaint.strokeWidth = 0.6f.dpToPx()
+        linePaint.color = if (dark) 0x26000000 else 0x1C3A2610
+        for (k in 1..3) {
+            val y = top + plankFront * k / 4.2f
+            canvas.drawLine(w * 0.04f * k, y, w * (0.9f + 0.03f * k), y, linePaint)
+        }
+        // 前沿高光
+        linePaint.strokeWidth = 1f.dpToPx()
+        linePaint.color = if (dark) 0x40FFE6C8 else 0xB0FFF8EC.toInt()
+        canvas.drawLine(0f, top, w, top, linePaint)
+        plankPaint.shader = LinearGradient(
+            0f, bottom, 0f, bottom + 28f.dpToPx(),
+            if (dark) 0x66000000 else 0x30000000, 0x00000000, Shader.TileMode.CLAMP
+        )
+        canvas.drawRect(0f, bottom, w, bottom + 28f.dpToPx(), plankPaint)
     }
 
     private fun drawShadow(canvas: Canvas, k: FloatArray) {
@@ -438,23 +532,85 @@ class Shelf3DView @JvmOverloads constructor(
     private fun drawInfo(canvas: Canvas, floorY: Float) {
         val ci = focus.roundToInt().coerceIn(0, items.size - 1)
         val item = items[ci]
-        val alpha = (1 - abs(focus - ci) * 2.2f).coerceIn(0.25f, 1f)
+        val alpha = (1 - abs(focus - ci) * 2.2f).coerceIn(0.2f, 1f)
+        val a = (alpha * 255).toInt()
         val cx = width / 2f
-        var y = floorY + 48f.dpToPx()
-        indexPaint.alpha = (alpha * 255).toInt()
-        canvas.drawText(
-            "№ %02d / %02d".format(ci + 1, items.size), cx, y, indexPaint
-        )
-        y += 30f.dpToPx()
-        titlePaint.alpha = (alpha * 255).toInt()
-        val title = TextUtils.ellipsize(item.name, titlePaint, width * 0.84f, TextUtils.TruncateAt.END)
+        val maxW = width * 0.84f
+        var y = floorY + plankFront + 46f.dpToPx()
+        indexPaint.alpha = a
+        canvas.drawText("№ %02d / %02d".format(ci + 1, items.size), cx, y, indexPaint)
+        y += 36f.dpToPx()
+        titlePaint.alpha = a
+        val title = TextUtils.ellipsize(item.name, titlePaint, maxW, TextUtils.TruncateAt.END)
         canvas.drawText(title, 0, title.length, cx, y, titlePaint)
-        y += 22f.dpToPx()
-        infoPaint.alpha = (alpha * 255).toInt()
-        val sub = listOf(item.author, item.info).filter { it.isNotBlank() }.joinToString("  ·  ")
-        val info = TextUtils.ellipsize(sub, infoPaint, width * 0.84f, TextUtils.TruncateAt.END)
-        canvas.drawText(info, 0, info.length, cx, y, infoPaint)
+        y += 24f.dpToPx()
+        val by = listOf(item.author.trim(), item.source.trim()).filter { it.isNotEmpty() }
+            .joinToString("  ·  ")
+        if (by.isNotEmpty()) {
+            authorPaint.alpha = a
+            val t = TextUtils.ellipsize(by, authorPaint, maxW, TextUtils.TruncateAt.END)
+            canvas.drawText(t, 0, t.length, cx, y, authorPaint)
+        }
+        y += 26f.dpToPx()
+        if (item.progress >= 0f) {
+            val bw = min(width * 0.4f, 170f.dpToPx())
+            val x0 = cx - bw / 2
+            linePaint.strokeWidth = 2f.dpToPx()
+            linePaint.color = ColorUtils.setAlphaComponent(faintColor, (a * 0.5f).toInt())
+            canvas.drawLine(x0, y, x0 + bw, y, linePaint)
+            linePaint.color = ColorUtils.setAlphaComponent(accent, a)
+            canvas.drawLine(x0, y, x0 + bw * max(item.progress, 0.02f), y, linePaint)
+            pctPaint.alpha = a
+            canvas.drawText(
+                "${(item.progress * 100).roundToInt()}%", x0 + bw + 8f.dpToPx(),
+                y + pctPaint.textSize * 0.35f, pctPaint
+            )
+            y += 22f.dpToPx()
+        }
+        if (item.info.isNotBlank()) {
+            infoPaint.alpha = a
+            val t = TextUtils.ellipsize(item.info, infoPaint, maxW, TextUtils.TruncateAt.END)
+            canvas.drawText(t, 0, t.length, cx, y, infoPaint)
+        }
     }
+
+    /** 底部书签尺：每本书一道刻度，朱砂书签标出当前位置，可拖动快速定位 */
+    private fun drawRuler(canvas: Canvas) {
+        val n = items.size
+        if (n < 2) return
+        val span = min(width * 0.7f, (n - 1) * 14f.dpToPx())
+        rulerStep = span / (n - 1)
+        rulerX0 = width / 2f - span / 2
+        val y = rulerY
+        val every = ceil(3f.dpToPx() / rulerStep).toInt().coerceAtLeast(1)
+        linePaint.strokeWidth = 0.6f.dpToPx()
+        linePaint.color = faintColor
+        canvas.drawLine(rulerX0 - 8f.dpToPx(), y, rulerX0 + span + 8f.dpToPx(), y, linePaint)
+        linePaint.strokeWidth = 1f.dpToPx()
+        for (i in 0 until n step every) {
+            val x = rulerX0 + i * rulerStep
+            val h = if (i % 5 == 0) 7f.dpToPx() else 4f.dpToPx()
+            canvas.drawLine(x, y - h, x, y, linePaint)
+        }
+        val fx = rulerX0 + focus.coerceIn(0f, n - 1f) * rulerStep
+        val hw = 3.5f.dpToPx()
+        ribbonPath.rewind()
+        ribbonPath.moveTo(fx - hw, y - 15f.dpToPx())
+        ribbonPath.lineTo(fx + hw, y - 15f.dpToPx())
+        ribbonPath.lineTo(fx + hw, y + 6f.dpToPx())
+        ribbonPath.lineTo(fx, y + 2.5f.dpToPx())
+        ribbonPath.lineTo(fx - hw, y + 6f.dpToPx())
+        ribbonPath.close()
+        fillPaint.color = accent
+        canvas.drawPath(ribbonPath, fillPaint)
+    }
+
+    private fun inRuler(x: Float, y: Float): Boolean =
+        items.size > 1 && rulerStep > 0f && abs(y - rulerY) < 22f.dpToPx() &&
+                x > rulerX0 - 24f.dpToPx() && x < rulerX0 + rulerStep * (items.size - 1) + 24f.dpToPx()
+
+    private fun rulerIndex(x: Float): Float =
+        ((x - rulerX0) / max(rulerStep, 1f)).coerceIn(0f, items.size - 1f)
 
     // ---------- 封面与书脊 ----------
 
@@ -711,6 +867,17 @@ class Shelf3DView @JvmOverloads constructor(
         if (items.isEmpty()) return super.onTouchEvent(event)
         val vt = velocityTracker ?: VelocityTracker.obtain().also { velocityTracker = it }
         vt.addMovement(event)
+        if (scrubbing && event.actionMasked != MotionEvent.ACTION_DOWN) {
+            focus = rulerIndex(event.x)
+            updateCenter(true)
+            invalidate()
+            if (event.actionMasked != MotionEvent.ACTION_MOVE) {
+                scrubbing = false
+                animateTo(focus.roundToInt())
+                recycleTracker()
+            }
+            return true
+        }
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 animator?.cancel()
@@ -720,7 +887,14 @@ class Shelf3DView @JvmOverloads constructor(
                 dragging = false
                 longPressed = false
                 parent?.requestDisallowInterceptTouchEvent(true)
-                postDelayed(longPressRunnable, ViewConfiguration.getLongPressTimeout().toLong())
+                scrubbing = inRuler(event.x, event.y)
+                if (scrubbing) {
+                    focus = rulerIndex(event.x)
+                    updateCenter(true)
+                    invalidate()
+                } else {
+                    postDelayed(longPressRunnable, ViewConfiguration.getLongPressTimeout().toLong())
+                }
             }
 
             MotionEvent.ACTION_MOVE -> {

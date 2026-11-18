@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 悬浮胶囊导航：选中项图标后的柔和药丸指示器 -->
+    <style name="ink2_NavActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:width">52dp</item>
+        <item name="android:height">28dp</item>
+        <item name="android:color">@color/ink_accent_soft</item>
+        <item name="shapeAppearance">@style/ink2_ShapePill</item>
+    </style>
+
+    <style name="ink2_ShapePill" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+</resources>

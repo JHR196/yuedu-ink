@@ -1,7 +1,10 @@
 package io.legado.app.lib.theme.view
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.graphics.drawable.ColorDrawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -23,7 +26,22 @@ class ThemeBottomNavigationVIew(context: Context, attrs: AttributeSet) :
 
     init {
         val bgColor = context.bottomBackground
-        setBackgroundColor(bgColor)
+        // 悬浮胶囊：全圆角 + 0.5dp 细描边，颜色跟随主题 bottomBackground
+        val density = resources.displayMetrics.density
+        background = GradientDrawable().apply {
+            shape = GradientDrawable.RECTANGLE
+            cornerRadius = 32f * density
+            setColor(bgColor)
+            setStroke(
+                (0.5f * density).toInt().coerceAtLeast(1),
+                context.getCompatColor(R.color.ink_line)
+            )
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val shadow = ColorUtils.withAlpha(Color.BLACK, 0.35f)
+            outlineAmbientShadowColor = shadow
+            outlineSpotShadowColor = shadow
+        }
         val textColor = if (ColorUtils.isColorLight(bgColor)) {
             context.getCompatColor(R.color.ink_text_faint)
         } else {
@@ -34,10 +52,14 @@ class ThemeBottomNavigationVIew(context: Context, attrs: AttributeSet) :
             .setSelectedColor(ThemeStore.accentColor(context)).create()
         itemIconTintList = colorStateList
         itemTextColor = colorStateList
+        itemActiveIndicatorColor = ColorStateList.valueOf(
+            ColorUtils.withAlpha(ThemeStore.accentColor(context), 0.14f)
+        )
 
         if (AppConfig.isEInkMode) {
             isItemHorizontalTranslationEnabled = false
             itemBackground = ColorDrawable(Color.TRANSPARENT)
+            isItemActiveIndicatorEnabled = false
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(this, null)

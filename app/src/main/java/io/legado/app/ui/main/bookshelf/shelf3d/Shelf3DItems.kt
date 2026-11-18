@@ -2,6 +2,7 @@ package io.legado.app.ui.main.bookshelf.shelf3d
 
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookGroup
+import io.legado.app.help.book.isLocal
 import android.content.Context
 import splitties.init.appCtx
 
@@ -33,7 +34,10 @@ object Shelf3DItems {
             origin = any.origin,
             info = any.durChapterTitle?.takeIf { it.isNotBlank() }?.let { "读至 $it" }
                 ?: if (any.totalChapterNum > 0) "共 ${any.totalChapterNum} 章" else "",
-            data = any
+            data = any,
+            source = if (any.isLocal) "本地" else any.originName,
+            progress = if (any.totalChapterNum > 0)
+                ((any.durChapterIndex + 1f) / any.totalChapterNum).coerceIn(0f, 1f) else -1f
         )
 
         is BookGroup -> Shelf3DView.Item(
