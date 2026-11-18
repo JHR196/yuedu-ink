@@ -1,9 +1,9 @@
 <resources>
     <!--App-->
-    <string name="app_name">依依</string>
-    <string name="app_name_a">依依·A</string>
-    <string name="receiving_shared_label">依依·搜索</string>
-    <string name="tip_perm_request_storage">依依需要访问存储卡权限，请前往“设置”—“应用权限”，打开所需权限</string>
+    <string name="app_name">阅读</string>
+    <string name="app_name_a">阅读·A</string>
+    <string name="receiving_shared_label">阅读·搜索</string>
+    <string name="tip_perm_request_storage">阅读需要访问存储卡权限，请前往“设置”—“应用权限”，打开所需权限</string>
 
     <!--Other-->
     <string name="menu_backup">Home</string>
@@ -97,10 +97,10 @@
     <string name="offline_cache_s">缓存选择的章节到本地</string>
     <string name="change_origin">换源</string>
     <string name="about_description">
-        　　依依是基于开源项目「阅读 Legado」（GPL-3.0）重新设计界面的阅读软件。一页纸，一盏灯。
+        \u3000\u3000这是一款使用 Kotlin 全新开发的开源的阅读软件，欢迎您的加入。
     </string>
     <string name="app_share_description">
-        依依 · 一页纸，一盏灯\n基于开源阅读 Legado：https://github.com/gedoor/legado
+        阅读 3.0 下载地址：\nhttps://github.com/gedoor/legado/releases
     </string>
     <string name="version_name">版本 %s</string>
     <string name="pt_background_verification">后台校验书源</string>
@@ -649,7 +649,7 @@
     <string name="app_folder_picker">自带文件夹选择器</string>
     <string name="app_file_picker">自带文件选择器</string>
     <string name="a10_permission_toast">Android 10 以上因系统权限限制可能无法读写文件</string>
-    <string name="add_to_text_context_menu_s">长按文字在操作菜单中显示依依·搜索</string>
+    <string name="add_to_text_context_menu_s">长按文字在操作菜单中显示阅读·搜索</string>
     <string name="add_to_text_context_menu_t">文字操作显示搜索</string>
     <string name="record_log">记录日志</string>
     <string name="log">日志</string>
@@ -691,7 +691,7 @@
     <string name="btn_default_s">默认</string>
     <string name="main_menu">主菜单</string>
     <string name="request_permission">点击授予权限</string>
-    <string name="tip_local_perm_request_storage">依依需要访问存储卡权限，请点击下方的“授予权限”按钮，或前往“设置”—“应用权限”，打开所需权限。如果授予权限后仍然不正常，请点击右上角的“选择文件夹”，使用系统文件夹选择器。</string>
+    <string name="tip_local_perm_request_storage">阅读需要访问存储卡权限，请点击下方的“授予权限”按钮，或前往“设置”—“应用权限”，打开所需权限。如果授予权限后仍然不正常，请点击右上角的“选择文件夹”，使用系统文件夹选择器。</string>
     <string name="alouding_disable">全文朗读中不能朗读选中文字</string>
     <string name="read_body_to_lh">扩展到刘海</string>
     <string name="toc_updateing">更新目录中</string>
@@ -975,7 +975,7 @@
     <string name="welcome_style">启动界面样式</string>
     <string name="welcome_style_summary">启动界面图片和是否显示文字等</string>
     <string name="show_welcome_text">显示文字</string>
-    <string name="welcome_text">依依|一页纸 · 一盏灯</string>
+    <string name="welcome_text">阅读|享受美好时光</string>
     <string name="custom_welcome">自定义欢迎页</string>
     <string name="custom_welcome_summary">是否使用自定义欢迎页</string>
     <string name="show_icon">显示图标</string>
@@ -1169,7 +1169,7 @@
     <string name="font_weight_text">中/粗/细</string>
     <string name="keep_swipe_tip">继续滑动以加载下一章…</string>
     <string name="enable_optimize_render">启用绘制优化</string>
-    <string name="ignore_battery_permission_rationale">依依需要请求后台权限以保持服务正常运行</string>
+    <string name="ignore_battery_permission_rationale">阅读需要请求后台权限以保持服务正常运行</string>
     <string name="simulated_reading">模拟追读</string>
     <string name="switch_on">开关</string>
     <string name="start_from">开始日期</string>

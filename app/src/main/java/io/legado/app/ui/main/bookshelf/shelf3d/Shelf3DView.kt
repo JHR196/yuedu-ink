@@ -27,7 +27,6 @@ import android.util.LruCache
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.MotionEvent
-import android.view.ScaleGestureDetector
 import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
@@ -154,20 +153,10 @@ class Shelf3DView @JvmOverloads constructor(
     private var pinching = false
     private var pinchFired = false
     private var pinchScale = 1f
-    private val scaleDetector by lazy {
-        ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-            override fun onScale(d: ScaleGestureDetector): Boolean {
-                pinchScale = (pinchScale * d.scaleFactor).coerceIn(0.5f, 1.2f)
-                if (!pinchFired && pinchScale < 0.8f) {
-                    pinchFired = true
-                    performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
-                    callback?.onPinchIn()
-                }
-                invalidate()
-                return true
-            }
-        })
-    }
+    private var pinchStart = 0f
+
+    private fun pinchSpan(e: MotionEvent): Float =
+        if (e.pointerCount < 2) 0f else kotlin.math.hypot(e.getX(0) - e.getX(1), e.getY(0) - e.getY(1))
 
     // 书柜：当前层铭牌与上下层
     private var shelfLabel: String? = null
@@ -514,7 +503,7 @@ class Shelf3DView @JvmOverloads constructor(
         canvas.save()
         canvas.translate(0f, shift)
         if (pinching && pinchScale < 1f) {
-            val k = pinchScale.coerceAtLeast(0.8f)
+            val k = pinchScale.coerceAtLeast(0.88f)
             canvas.scale(k, k, width / 2f, floorY)
         }
         drawPlank(canvas, floorY)
@@ -979,7 +968,8 @@ class Shelf3DView @JvmOverloads constructor(
 
     private fun spineFor(item: Item): Bitmap {
         val color = spineColorOf(item)
-        val key = item.key + "|" + color + "|" + item.name
+        val noCover = item.data !is BookGroup && (AppConfig.useDefaultCover || item.cover.isNullOrBlank())
+        val key = item.key + "|" + (if (noCover) "def" else color.toString()) + "|" + item.name
         spineCache.get(key)?.let { return it }
         return generateSpine(item, color).also { spineCache.put(key, it) }
     }
@@ -991,17 +981,38 @@ class Shelf3DView @JvmOverloads constructor(
         val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val c = Canvas(out)
         val p = Paint(Paint.ANTI_ALIAS_FLAG)
-        p.shader = LinearGradient(
-            0f, 0f, w.toFloat(), 0f,
-            intArrayOf(
-                ColorUtils.blendARGB(color, Color.BLACK, 0.25f),
-                ColorUtils.blendARGB(color, Color.WHITE, 0.10f),
-                ColorUtils.blendARGB(color, Color.BLACK, 0.20f)
-            ),
-            floatArrayOf(0f, 0.45f, 1f), Shader.TileMode.CLAMP
-        )
+        var tone = color
+        if (item.data !is BookGroup && (AppConfig.useDefaultCover || item.cover.isNullOrBlank())) {
+            // 没封面：取默认封面中间一条做书脊，与书柜总览一致
+            val d = BookCover.defaultDrawable
+            val dw = d.intrinsicWidth.takeIf { it > 0 } ?: w
+            val dh = d.intrinsicHeight.takeIf { it > 0 } ?: h
+            val sc = max(h / dh.toFloat(), w / dw.toFloat())
+            val sw = (dw * sc).toInt()
+            val sh = (dh * sc).toInt()
+            val old = Rect(d.bounds)
+            d.setBounds((w - sw) / 2, (h - sh) / 2, (w + sw) / 2, (h + sh) / 2)
+            d.draw(c)
+            d.bounds = old
+            tone = Bitmap.createScaledBitmap(out, 1, 1, true).getPixel(0, 0)
+            p.shader = LinearGradient(
+                0f, 0f, w.toFloat(), 0f,
+                intArrayOf(0x55000000, 0x22FFFFFF, 0x00000000, 0x66000000),
+                floatArrayOf(0f, 0.38f, 0.62f, 1f), Shader.TileMode.CLAMP
+            )
+        } else {
+            p.shader = LinearGradient(
+                0f, 0f, w.toFloat(), 0f,
+                intArrayOf(
+                    ColorUtils.blendARGB(color, Color.BLACK, 0.25f),
+                    ColorUtils.blendARGB(color, Color.WHITE, 0.10f),
+                    ColorUtils.blendARGB(color, Color.BLACK, 0.20f)
+                ),
+                floatArrayOf(0f, 0.45f, 1f), Shader.TileMode.CLAMP
+            )
+        }
         c.drawRect(0f, 0f, w.toFloat(), h.toFloat(), p)
-        val light = ColorUtils.calculateLuminance(color) < 0.5
+        val light = ColorUtils.calculateLuminance(tone) < 0.5
         val ink = if (light) 0xF2FFFFFF.toInt() else 0xE6211E1A.toInt()
         val band = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             this.color = if (light) 0x88E8D3A0.toInt() else 0x66000000
@@ -1109,11 +1120,11 @@ class Shelf3DView @JvmOverloads constructor(
     override fun performClick(): Boolean = super.performClick()
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        scaleDetector.onTouchEvent(event)
         if (event.actionMasked == MotionEvent.ACTION_POINTER_DOWN && !pinching) {
             pinching = true
             pinchFired = false
             pinchScale = 1f
+            pinchStart = pinchSpan(event)
             removeCallbacks(longPressRunnable)
             scrubbing = false
             if (vDragging) {
@@ -1128,6 +1139,15 @@ class Shelf3DView @JvmOverloads constructor(
         }
         if (pinching) {
             val a = event.actionMasked
+            if (a == MotionEvent.ACTION_MOVE && event.pointerCount >= 2 && pinchStart > 0f) {
+                pinchScale = (pinchSpan(event) / pinchStart).coerceIn(0.5f, 1.2f)
+                if (!pinchFired && pinchScale < 0.88f) {
+                    pinchFired = true
+                    performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                    callback?.onPinchIn()
+                }
+                invalidate()
+            }
             if (a == MotionEvent.ACTION_UP || a == MotionEvent.ACTION_CANCEL) {
                 pinching = false
                 pinchScale = 1f

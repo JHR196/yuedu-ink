@@ -30,16 +30,13 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/iv_book">
 
-        <TextView
+        <ImageView
             android:id="@+id/tv_title"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="serif"
-            android:letterSpacing="0.08"
-            android:text="@string/app_name"
-            android:textColor="@color/ink_text"
-            android:textSize="34sp"
-            android:textStyle="bold"
+            android:layout_height="78dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/sp_wordmark"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

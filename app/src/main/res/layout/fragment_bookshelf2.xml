@@ -37,6 +37,14 @@
         app:layout_constraintTop_toBottomOf="@+id/title_bar"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <io.legado.app.ui.main.bookshelf.shelf3d.ShelfCabinetView
+        android:id="@+id/shelf_cabinet"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/title_bar"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
     <TextView
         android:id="@+id/tv_empty_msg"
         android:layout_width="wrap_content"

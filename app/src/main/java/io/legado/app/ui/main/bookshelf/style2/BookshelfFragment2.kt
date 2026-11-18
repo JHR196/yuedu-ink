@@ -28,6 +28,7 @@ import io.legado.app.ui.book.search.SearchActivity
 import io.legado.app.ui.main.bookshelf.BaseBookshelfFragment
 import io.legado.app.ui.main.bookshelf.shelf3d.Shelf3DItems
 import io.legado.app.ui.main.bookshelf.shelf3d.Shelf3DView
+import io.legado.app.ui.main.bookshelf.shelf3d.ShelfCabinetView
 import io.legado.app.utils.cnCompare
 import io.legado.app.utils.flowWithLifecycleAndDatabaseChangeFirst
 import io.legado.app.utils.observeEvent
@@ -128,6 +129,21 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
 
             override fun onLongPress(item: Any) = onItemLongClick(item)
 
+            override fun onPinchIn() {
+                showCabinet()
+            }
+
+            override fun onSwitchGroup(delta: Int): Boolean {
+                val gi = bookGroups.indexOfFirst { it.groupId == groupId }
+                val target = bookGroups.getOrNull(gi + delta)
+                if (gi < 0 || target == null) return false
+                Shelf3DItems.remember(groupId, binding.shelf3d.centerKey)
+                groupId = target.groupId
+                initBooksData()
+                binding.shelf3d.playEnter(delta)
+                return true
+            }
+
             override fun onPlateClick() {
                 showDialogFragment<GroupManageDialog>()
             }
@@ -141,7 +157,12 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
         binding.shelf3d.setItems(Shelf3DItems.of(items))
         val name = if (groupId == BookGroup.IdRoot) getString(R.string.bookshelf)
         else bookGroups.firstOrNull { it.groupId == groupId }?.groupName
-        binding.shelf3d.setGroupInfo(name?.let { "$it · ${items.size}" }, null, null)
+        val gi = bookGroups.indexOfFirst { it.groupId == groupId }
+        binding.shelf3d.setGroupInfo(
+            name?.let { "$it · ${items.size}" },
+            if (gi >= 0) bookGroups.getOrNull(gi - 1)?.groupName else null,
+            if (gi >= 0) bookGroups.getOrNull(gi + 1)?.groupName else null
+        )
     }
 
     override fun upGroup(data: List<BookGroup>) {
@@ -216,7 +237,32 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
         }
     }
 
+    /** 双指合拢：收成书柜，一层一个分组 */
+    fun showCabinet() {
+        if (!isShelf3D || bookGroups.isEmpty() || binding.shelfCabinet.visibility == View.VISIBLE) return
+        Shelf3DItems.remember(groupId, binding.shelf3d.centerKey)
+        val groups = bookGroups.toList()
+        val cur = groups.indexOfFirst { it.groupId == groupId }
+        binding.shelfCabinet.callback = object : ShelfCabinetView.Callback {
+            override fun onPick(index: Int) {
+                val g = groups.getOrNull(index) ?: return
+                if (g.groupId != groupId) {
+                    Shelf3DItems.remember(groupId, binding.shelf3d.centerKey)
+                    groupId = g.groupId
+                    initBooksData()
+                }
+            }
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            binding.shelfCabinet.show(ShelfCabinetView.loadLayers(groups), cur)
+        }
+    }
+
     fun back(): Boolean {
+        if (binding.shelfCabinet.isShowing) {
+            binding.shelfCabinet.dismiss()
+            return true
+        }
         if (groupId != BookGroup.IdRoot) {
             Shelf3DItems.remember(groupId, binding.shelf3d.centerKey)
             groupId = BookGroup.IdRoot

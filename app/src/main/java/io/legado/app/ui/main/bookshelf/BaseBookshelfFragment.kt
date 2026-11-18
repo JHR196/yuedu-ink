@@ -89,8 +89,7 @@ abstract class BaseBookshelfFragment(layoutId: Int) : VMBaseFragment<BookshelfVi
     override fun onCompatCreateOptionsMenu(menu: Menu) {
         menuInflater.inflate(R.menu.main_bookshelf, menu)
         menu.findItem(R.id.menu_cabinet)?.isVisible =
-            this is io.legado.app.ui.main.bookshelf.style1.BookshelfFragment1 &&
-                    AppConfig.bookshelfLayout == io.legado.app.ui.main.bookshelf.shelf3d.Shelf3DView.LAYOUT_INDEX
+            AppConfig.bookshelfLayout == io.legado.app.ui.main.bookshelf.shelf3d.Shelf3DView.LAYOUT_INDEX
     }
 
     override fun onCompatOptionsItemSelected(item: MenuItem) {
@@ -101,7 +100,10 @@ abstract class BaseBookshelfFragment(layoutId: Int) : VMBaseFragment<BookshelfVi
             R.id.menu_update_toc -> activityViewModel.upToc(books)
             R.id.menu_bookshelf_layout -> configBookshelf()
             R.id.menu_group_manage -> showDialogFragment<GroupManageDialog>()
-            R.id.menu_cabinet -> (this as? io.legado.app.ui.main.bookshelf.style1.BookshelfFragment1)?.showCabinet()
+            R.id.menu_cabinet -> when (this) {
+                is io.legado.app.ui.main.bookshelf.style1.BookshelfFragment1 -> showCabinet()
+                is io.legado.app.ui.main.bookshelf.style2.BookshelfFragment2 -> showCabinet()
+            }
             R.id.menu_add_local -> startActivity<ImportBookActivity>()
             R.id.menu_add_url -> showAddBookByUrlAlert()
             R.id.menu_bookshelf_manage -> startActivity<BookshelfManageActivity> {

@@ -8,12 +8,8 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import io.legado.app.ui.main.bookshelf.shelf3d.ShelfCabinetView
-import io.legado.app.ui.main.bookshelf.shelf3d.Shelf3DItems
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
@@ -94,13 +90,7 @@ class BookshelfFragment1() : BaseBookshelfFragment(R.layout.fragment_bookshelf1)
         val groups = bookGroups.toList()
         val cur = binding.viewPagerBookshelf.currentItem
         viewLifecycleOwner.lifecycleScope.launch {
-            val data = withContext(Dispatchers.IO) {
-                groups.map { g ->
-                    val list = appDb.bookDao.flowByGroup(g.groupId).first()
-                        .sortedByDescending { it.durChapterTime }
-                    ShelfCabinetView.Layer(g.groupName, Shelf3DItems.of(list))
-                }
-            }
+            val data = ShelfCabinetView.loadLayers(groups)
             cabinetBack.isEnabled = true
             binding.shelfCabinet.show(data, cur)
         }
