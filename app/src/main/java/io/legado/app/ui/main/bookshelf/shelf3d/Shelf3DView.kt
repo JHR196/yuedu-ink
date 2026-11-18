@@ -85,6 +85,9 @@ class Shelf3DView @JvmOverloads constructor(
 
         /** 上下拖动换到相邻分组；delta=+1 下一层，-1 上一层；返回是否成功 */
         fun onSwitchGroup(delta: Int): Boolean = false
+
+        /** 点击层板铭牌：打开分组管理 */
+        fun onPlateClick() {}
     }
 
     var callback: Callback? = null
@@ -1052,6 +1055,17 @@ class Shelf3DView @JvmOverloads constructor(
     }
 
     private fun handleTap(x: Float, y: Float) {
+        if (shelfLabel != null && plateRect.width() > 0f) {
+            val pad = 10f.dpToPx()
+            val ty = y - pullY - enterOffset
+            if (x > plateRect.left - pad && x < plateRect.right + pad &&
+                ty > plateRect.top - pad && ty < plateRect.bottom + pad
+            ) {
+                performClick()
+                callback?.onPlateClick()
+                return
+            }
+        }
         val idx = hitTest(x, y) ?: return
         val center = focus.roundToInt()
         if (idx == center && abs(focus - idx) < 0.05f) {

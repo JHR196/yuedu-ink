@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter.StateRestorationPolicy
+import io.legado.app.utils.showDialogFragment
+import io.legado.app.ui.book.group.GroupManageDialog
 import io.legado.app.R
 import io.legado.app.base.BaseFragment
 import io.legado.app.constant.AppLog
@@ -152,6 +154,10 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
 
             override fun onLongPress(item: Any) {
                 if (item is Book) openBookInfo(item)
+            }
+
+            override fun onPlateClick() {
+                showDialogFragment<GroupManageDialog>()
             }
 
             override fun onSwitchGroup(delta: Int): Boolean {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="ink2_seal_char">阅</string>
+    <string name="ink2_seal_char">依</string>
     <string name="ink2_my_stats">藏书 %1$d · 书源 %2$d · 已读 %3$d 本</string>
 </resources>

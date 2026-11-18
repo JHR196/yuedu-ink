@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import io.legado.app.ui.book.group.GroupManageDialog
 import io.legado.app.R
 import io.legado.app.constant.AppLog
 import io.legado.app.constant.EventBus
@@ -126,6 +127,10 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
             }
 
             override fun onLongPress(item: Any) = onItemLongClick(item)
+
+            override fun onPlateClick() {
+                showDialogFragment<GroupManageDialog>()
+            }
         }
     }
 
