@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.PorterDuff
+import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.animation.Animation
@@ -19,6 +20,7 @@ import io.legado.app.ui.book.searchContent.SearchResult
 import io.legado.app.utils.ColorUtils
 import io.legado.app.utils.activity
 import io.legado.app.utils.applyNavigationBarPadding
+import io.legado.app.utils.dpToPx
 import io.legado.app.utils.invisible
 import io.legado.app.utils.loadAnimation
 import io.legado.app.utils.visible
@@ -68,13 +70,25 @@ class SearchMenu @JvmOverloads constructor(
     }
 
     private fun initView() = binding.run {
-        llSearchBaseInfo.setBackgroundColor(ColorUtils.adjustAlpha(bgColor, 0.94f))
+        val hairline = 0.5F.dpToPx().coerceAtLeast(1F).toInt()
+        val lineColor = ColorUtils.withAlpha(textColor, 0.14f)
         tvCurrentSearchInfo.setTextColor(bottomBackgroundList)
-        llBottomBg.setBackgroundColor(ColorUtils.adjustAlpha(bgColor, 0.94f))
-        fabLeft.backgroundTintList = bottomBackgroundList
-        fabLeft.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
-        fabRight.backgroundTintList = bottomBackgroundList
-        fabRight.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
+        // 与阅读菜单一致的浮动卡片
+        llBottomMenu.background = GradientDrawable().apply {
+            cornerRadius = 20F.dpToPx()
+            setColor(bgColor)
+            setStroke(hairline, lineColor)
+        }
+        llBottomMenu.clipToOutline = true
+        vwRd3CardLine.setBackgroundColor(lineColor)
+        listOf(fabLeft, fabRight).forEach {
+            it.background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                color = bottomBackgroundList
+                setStroke(hairline, lineColor)
+            }
+            it.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
+        }
         tvMainMenu.setTextColor(textColor)
         tvSearchResults.setTextColor(textColor)
         tvSearchExit.setTextColor(textColor)

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 纸墨图标前景：书架上的三本书、一本斜靠的书和一条朱砂书签 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#33000000" android:pathData="M26.28,71.22 L76.68,71.22 L76.68,73.74 L26.28,73.74 Z" />
+    <path android:fillColor="#FF9A7B55" android:pathData="M26.28,67.44 L76.68,67.44 L76.68,71.22 L26.28,71.22 Z" />
+    <path android:fillColor="#FFC9AE84" android:pathData="M26.28,67.44 L76.68,67.44 L76.68,68.28 L26.28,68.28 Z" />
+    <path android:fillColor="#FF2B2722" android:pathData="M31.32,33.42 L40.98,33.42 L40.98,67.44 L31.32,67.44 Z" />
+    <path android:fillColor="#FFC8A86A" android:pathData="M31.32,37.62 L40.98,37.62 L40.98,38.63 L31.32,38.63 Z" />
+    <path android:fillColor="#FFC8A86A" android:pathData="M31.32,62.40 L40.98,62.40 L40.98,63.41 L31.32,63.41 Z" />
+    <path android:fillColor="#FF4E6B5C" android:pathData="M41.82,38.46 L50.22,38.46 L50.22,67.44 L41.82,67.44 Z" />
+    <path android:fillColor="#FFC8A86A" android:pathData="M41.82,42.24 L50.22,42.24 L50.22,43.08 L41.82,43.08 Z" />
+    <path android:fillColor="#FFC8A86A" android:pathData="M41.82,62.82 L50.22,62.82 L50.22,63.66 L41.82,63.66 Z" />
+    <path android:fillColor="#FFB5452F" android:pathData="M51.06,29.22 L60.72,29.22 L60.72,67.44 L51.06,67.44 Z" />
+    <path android:fillColor="#FFF3E9DA" android:pathData="M53.16,40.14 L58.62,40.14 L58.62,50.22 L53.16,50.22 Z" />
+    <path android:fillColor="#FFE9C9A0" android:pathData="M51.06,62.40 L60.72,62.40 L60.72,63.41 L51.06,63.41 Z" />
+    <path android:fillColor="#FFC9A66B" android:pathData="M61.56,67.44 L69.12,67.44 L76.26,45.18 L69.12,42.83 Z" />
+    <path android:fillColor="#FFEFE5D2" android:pathData="M67.94,67.44 L69.12,67.44 L76.26,45.18 L75.17,44.84 Z" />
+    <path android:fillColor="#FFB5452F" android:pathData="M34.85,67.44 L37.54,67.44 L37.54,78.78 L36.19,77.10 L34.85,78.78 Z" />
+</vector>

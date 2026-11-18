@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 阅读菜单标题：衬线粗体 17sp（颜色由运行时设置） -->
+    <style name="rd3_ReadMenuTitle">
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">serif</item>
+    </style>
+</resources>

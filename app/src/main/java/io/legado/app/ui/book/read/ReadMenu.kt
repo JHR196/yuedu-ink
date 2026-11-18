@@ -5,7 +5,9 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
@@ -168,43 +170,61 @@ class ReadMenu @JvmOverloads constructor(
             fabNightTheme.setImageResource(R.drawable.ic_brightness)
         }
         initAnimation()
-        if (immersiveMenu) {
-            val lightTextColor = ColorUtils.withAlpha(ColorUtils.lightenColor(textColor), 0.75f)
-            titleBar.setTextColor(textColor)
-            titleBar.setBackgroundColor(ColorUtils.adjustAlpha(bgColor, 0.94f))
-            titleBar.setColorFilter(textColor)
-            tvChapterName.setTextColor(lightTextColor)
-            tvChapterUrl.setTextColor(lightTextColor)
-        } else if (reset) {
-            val bgColor = context.primaryColor
-            val textColor = context.primaryTextColor
-            titleBar.setTextColor(textColor)
-            titleBar.setBackgroundColor(ColorUtils.adjustAlpha(bgColor, 0.94f))
-            titleBar.setColorFilter(textColor)
-            tvChapterName.setTextColor(textColor)
-            tvChapterUrl.setTextColor(textColor)
-        }
+        val hairline = 0.5F.dpToPx().coerceAtLeast(1F).toInt()
+        val lineColor = ColorUtils.withAlpha(textColor, 0.14f)
+        // 顶栏：菜单底色 不透明 + 底部 0.5dp 细线（取代硬阴影）
+        val topBg = if (immersiveMenu) bgColor else context.primaryColor
+        val topText = if (immersiveMenu) textColor else context.primaryTextColor
+        titleBar.setTextColor(topText)
+        titleBar.background = LayerDrawable(
+            arrayOf(
+                ColorDrawable(ColorUtils.withAlpha(topText, 0.14f)),
+                ColorDrawable(ColorUtils.adjustAlpha(topBg, 1f))
+            )
+        ).apply { setLayerInset(1, 0, 0, 0, hairline) }
+        titleBar.elevation = 0f
+        titleBar.setColorFilter(topText)
+        tvChapterName.setTextColor(ColorUtils.withAlpha(topText, 0.62f))
+        tvChapterUrl.setTextColor(ColorUtils.withAlpha(topText, 0.42f))
+        // 亮度条：胶囊 + 细描边
         val brightnessBackground = GradientDrawable()
-        brightnessBackground.cornerRadius = 5F.dpToPx()
-        brightnessBackground.setColor(ColorUtils.adjustAlpha(bgColor, 0.5f))
+        brightnessBackground.cornerRadius = 999F.dpToPx()
+        brightnessBackground.setColor(ColorUtils.adjustAlpha(bgColor, 0.9f))
+        brightnessBackground.setStroke(hairline, lineColor)
         llBrightness.background = brightnessBackground
         if (AppConfig.isEInkMode) {
             titleBar.setBackgroundResource(R.drawable.bg_eink_border_bottom)
             llBottomBg.setBackgroundResource(R.drawable.bg_eink_border_top)
+            llBottomBg.elevation = 0f
+            llBottomBg.clipToOutline = false
         } else {
-            llBottomBg.setBackgroundColor(ColorUtils.adjustAlpha(bgColor, 0.94f))
+            // 底部浮动卡片：20dp 圆角 + 细描边 + 柔和阴影
+            llBottomBg.background = GradientDrawable().apply {
+                cornerRadius = 20F.dpToPx()
+                setColor(bgColor)
+                setStroke(hairline, lineColor)
+            }
+            llBottomBg.elevation = 8F.dpToPx()
+            llBottomBg.clipToOutline = true
         }
-        fabSearch.backgroundTintList = bottomBackgroundList
-        fabSearch.setColorFilter(textColor)
-        fabAutoPage.backgroundTintList = bottomBackgroundList
-        fabAutoPage.setColorFilter(textColor)
-        fabReplaceRule.backgroundTintList = bottomBackgroundList
-        fabReplaceRule.setColorFilter(textColor)
-        fabNightTheme.backgroundTintList = bottomBackgroundList
-        fabNightTheme.setColorFilter(textColor)
+        vwRd3CardLine.setBackgroundColor(lineColor)
+        // 快捷圆钮：44dp 圆形 + 细描边，按下变深
+        listOf(fabSearch, fabAutoPage, fabReplaceRule, fabNightTheme).forEach {
+            it.background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                color = bottomBackgroundList
+                setStroke(hairline, lineColor)
+            }
+            it.setColorFilter(textColor)
+        }
         seekReadPage.applyTint(context.accentColor)
-        tvPre.setTextColor(textColor)
-        tvNext.setTextColor(textColor)
+        val chapterBtnColors = ColorStateList(
+            arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf()),
+            intArrayOf(ColorUtils.withAlpha(textColor, 0.3f), context.accentColor)
+        )
+        tvPre.setTextColor(chapterBtnColors)
+        tvNext.setTextColor(chapterBtnColors)
+        tvRd3Progress.setTextColor(ColorUtils.withAlpha(textColor, 0.55f))
         ivCatalog.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
         tvCatalog.setTextColor(textColor)
         ivReadAloud.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
@@ -403,6 +423,10 @@ class ReadMenu @JvmOverloads constructor(
         //阅读进度
         seekReadPage.setOnSeekBarChangeListener(object : SeekBarChangeListener {
 
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                upRd3Progress()
+            }
+
             override fun onStartTrackingTouch(seekBar: SeekBar) {
                 binding.vwMenuBg.setOnClickListener(null)
             }
@@ -537,10 +561,18 @@ class ReadMenu @JvmOverloads constructor(
                 }
             }
         }
+        upRd3Progress()
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun upRd3Progress() {
+        val seek = binding.seekReadPage
+        binding.tvRd3Progress.text = "${seek.progress + 1} / ${seek.max + 1}"
     }
 
     fun setSeekPage(seek: Int) {
         binding.seekReadPage.progress = seek
+        upRd3Progress()
     }
 
     fun setAutoPage(autoPage: Boolean) = binding.run {

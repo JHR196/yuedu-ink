@@ -286,7 +286,7 @@ object AppConfig : SharedPreferences.OnSharedPreferenceChangeListener {
         }
 
     var systemTypefaces: Int
-        get() = appCtx.getPrefInt(PreferKey.systemTypefaces)
+        get() = appCtx.getPrefInt(PreferKey.systemTypefaces, 1)
         set(value) {
             appCtx.putPrefInt(PreferKey.systemTypefaces, value)
         }
