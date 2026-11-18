@@ -92,10 +92,10 @@ android {
             if (project.hasProperty("RELEASE_STORE_FILE")) {
                 signingConfig signingConfigs.myConfig
             }
-            manifestPlaceholders.put("app_name", "@string/app_name")
+            manifestPlaceholders.put("app_name", project.hasProperty('shelf3d') ? "阅读·立体书架" : "@string/app_name")
 
-            applicationIdSuffix '.debug'
-            versionNameSuffix 'debug'
+            applicationIdSuffix project.hasProperty('shelf3d') ? '.shelf3d' : '.debug'
+            versionNameSuffix project.hasProperty('shelf3d') ? 'shelf3d' : 'debug'
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro', 'cronet-proguard-rules.pro'
         }
@@ -107,6 +107,10 @@ android {
             dimension "mode"
             manifestPlaceholders.put("APP_CHANNEL_VALUE", "app")
         }
+    }
+
+    if (project.hasProperty('shelf3d')) {
+        tasks.matching { it.name.contains('GoogleServices') }.configureEach { enabled = false }
     }
 
     android.applicationVariants.configureEach { variant ->

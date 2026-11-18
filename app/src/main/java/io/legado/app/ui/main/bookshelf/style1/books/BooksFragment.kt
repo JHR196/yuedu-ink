@@ -26,6 +26,8 @@ import io.legado.app.help.config.AppConfig
 import io.legado.app.lib.theme.accentColor
 import io.legado.app.lib.theme.primaryColor
 import io.legado.app.ui.book.info.BookInfoActivity
+import io.legado.app.ui.main.bookshelf.shelf3d.Shelf3DItems
+import io.legado.app.ui.main.bookshelf.shelf3d.Shelf3DView
 import io.legado.app.ui.main.MainViewModel
 import io.legado.app.utils.cnCompare
 import io.legado.app.utils.flowWithLifecycleAndDatabaseChangeFirst
@@ -63,6 +65,7 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
     private val binding by viewBinding(FragmentBooksBinding::bind)
     private val activityViewModel by activityViewModels<MainViewModel>()
     private val bookshelfLayout by lazy { AppConfig.bookshelfLayout }
+    private val isShelf3D get() = bookshelfLayout == Shelf3DView.LAYOUT_INDEX
     private val booksAdapter: BaseBooksAdapter<*> by lazy {
         if (bookshelfLayout == 0) {
             BooksAdapterList(requireContext(), this, this, viewLifecycleOwner.lifecycle)
@@ -100,11 +103,12 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
             binding.refreshLayout.isRefreshing = false
             activityViewModel.upToc(booksAdapter.getItems())
         }
-        if (bookshelfLayout == 0) {
+        if (bookshelfLayout == 0 || isShelf3D) {
             binding.rvBookshelf.layoutManager = LinearLayoutManager(context)
         } else {
             binding.rvBookshelf.layoutManager = GridLayoutManager(context, bookshelfLayout + 2)
         }
+        initShelf3D()
         if (bookshelfLayout == 0) {
             binding.rvBookshelf.setRecycledViewPool(activityViewModel.booksListRecycledViewPool)
         } else {
@@ -130,6 +134,25 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
             }
         })
         startLastUpdateTimeJob()
+    }
+
+    private fun initShelf3D() {
+        if (!isShelf3D) return
+        binding.rvBookshelf.visibility = View.GONE
+        binding.shelf3d.visibility = View.VISIBLE
+        binding.shelf3d.presetCenter(Shelf3DItems.lastKey(groupId))
+        binding.shelf3d.callback = object : Shelf3DView.Callback {
+            override fun onOpen(item: Any) {
+                if (item is Book) {
+                    Shelf3DItems.remember(groupId, binding.shelf3d.centerKey)
+                    open(item)
+                }
+            }
+
+            override fun onLongPress(item: Any) {
+                if (item is Book) openBookInfo(item)
+            }
+        }
     }
 
     private fun upFastScrollerBar() {
@@ -193,6 +216,7 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
                 binding.tvEmptyMsg.isGone = list.isNotEmpty()
                 binding.refreshLayout.isEnabled = enableRefresh && list.isNotEmpty()
                 booksAdapter.setItems(list)
+                if (isShelf3D) binding.shelf3d.setItems(Shelf3DItems.of(list))
                 delay(100)
             }
         }
@@ -218,6 +242,10 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
     }
 
     fun gotoTop() {
+        if (isShelf3D) {
+            binding.shelf3d.scrollToFirst()
+            return
+        }
         if (AppConfig.isEInkMode) {
             binding.rvBookshelf.scrollToPosition(0)
         } else {
@@ -231,6 +259,7 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (isShelf3D) Shelf3DItems.remember(groupId, binding.shelf3d.centerKey)
         /**
          * 将 RecyclerView 中的视图全部回收到 RecycledViewPool 中
          */
@@ -261,6 +290,7 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
         }
         observeEvent<String>(EventBus.BOOKSHELF_REFRESH) {
             booksAdapter.notifyDataSetChanged()
+            if (isShelf3D) binding.shelf3d.invalidate()
             startLastUpdateTimeJob()
             upFastScrollerBar()
         }

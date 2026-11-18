@@ -25,6 +25,8 @@ import io.legado.app.ui.book.group.GroupEditDialog
 import io.legado.app.ui.book.info.BookInfoActivity
 import io.legado.app.ui.book.search.SearchActivity
 import io.legado.app.ui.main.bookshelf.BaseBookshelfFragment
+import io.legado.app.ui.main.bookshelf.shelf3d.Shelf3DItems
+import io.legado.app.ui.main.bookshelf.shelf3d.Shelf3DView
 import io.legado.app.utils.cnCompare
 import io.legado.app.utils.flowWithLifecycleAndDatabaseChangeFirst
 import io.legado.app.utils.observeEvent
@@ -58,6 +60,7 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
 
     private val binding by viewBinding(FragmentBookshelf2Binding::bind)
     private val bookshelfLayout by lazy { AppConfig.bookshelfLayout }
+    private val isShelf3D get() = bookshelfLayout == Shelf3DView.LAYOUT_INDEX
     private val booksAdapter: BaseBooksAdapter<*> by lazy {
         if (bookshelfLayout == 0) {
             BooksAdapterList(requireContext(), this)
@@ -85,12 +88,13 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
             binding.refreshLayout.isRefreshing = false
             activityViewModel.upToc(books)
         }
-        if (bookshelfLayout == 0) {
+        if (bookshelfLayout == 0 || isShelf3D) {
             binding.rvBookshelf.layoutManager = LinearLayoutManager(context)
         } else {
             binding.rvBookshelf.layoutManager = GridLayoutManager(context, bookshelfLayout + 2)
         }
         binding.rvBookshelf.itemAnimator = null
+        initShelf3D()
         binding.rvBookshelf.adapter = booksAdapter
         booksAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
@@ -111,10 +115,31 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
         })
     }
 
+    private fun initShelf3D() {
+        if (!isShelf3D) return
+        binding.refreshLayout.visibility = View.GONE
+        binding.shelf3d.visibility = View.VISIBLE
+        binding.shelf3d.callback = object : Shelf3DView.Callback {
+            override fun onOpen(item: Any) {
+                Shelf3DItems.remember(groupId, binding.shelf3d.centerKey)
+                onItemClick(item)
+            }
+
+            override fun onLongPress(item: Any) = onItemLongClick(item)
+        }
+    }
+
+    private fun upShelf3D() {
+        if (!isShelf3D) return
+        binding.shelf3d.presetCenter(Shelf3DItems.lastKey(groupId))
+        binding.shelf3d.setItems(Shelf3DItems.of(getItems()))
+    }
+
     override fun upGroup(data: List<BookGroup>) {
         if (data != bookGroups) {
             bookGroups = data
             booksAdapter.updateItems()
+            upShelf3D()
             binding.tvEmptyMsg.isGone = getItemCount() > 0
             binding.refreshLayout.isEnabled = enableRefresh && getItemCount() > 0
         }
@@ -174,6 +199,7 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
             }.conflate().flowOn(Dispatchers.Default).collect { list ->
                 books = list
                 booksAdapter.updateItems()
+                upShelf3D()
                 binding.tvEmptyMsg.isGone = getItemCount() > 0
                 binding.refreshLayout.isEnabled = enableRefresh && getItemCount() > 0
                 delay(100)
@@ -183,6 +209,7 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
 
     fun back(): Boolean {
         if (groupId != BookGroup.IdRoot) {
+            Shelf3DItems.remember(groupId, binding.shelf3d.centerKey)
             groupId = BookGroup.IdRoot
             initBooksData()
             return true
@@ -200,6 +227,10 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
     }
 
     override fun gotoTop() {
+        if (isShelf3D) {
+            binding.shelf3d.scrollToFirst()
+            return
+        }
         if (AppConfig.isEInkMode) {
             binding.rvBookshelf.scrollToPosition(0)
         } else {
@@ -212,6 +243,7 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
             is Book -> startActivityForBook(item)
 
             is BookGroup -> {
+                Shelf3DItems.remember(groupId, binding.shelf3d.centerKey)
                 groupId = item.groupId
                 initBooksData()
             }
