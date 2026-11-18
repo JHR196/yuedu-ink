@@ -27,6 +27,7 @@ import android.util.LruCache
 import android.view.HapticFeedbackConstants
 import android.view.KeyEvent
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
@@ -88,6 +89,9 @@ class Shelf3DView @JvmOverloads constructor(
 
         /** 点击层板铭牌：打开分组管理 */
         fun onPlateClick() {}
+
+        /** 双指合拢：收成书柜总览 */
+        fun onPinchIn() {}
     }
 
     var callback: Callback? = null
@@ -145,6 +149,25 @@ class Shelf3DView @JvmOverloads constructor(
     private var rulerX0 = 0f
     private var rulerStep = 0f
     private var scrubbing = false
+
+    // 双指合拢收成书柜
+    private var pinching = false
+    private var pinchFired = false
+    private var pinchScale = 1f
+    private val scaleDetector by lazy {
+        ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            override fun onScale(d: ScaleGestureDetector): Boolean {
+                pinchScale = (pinchScale * d.scaleFactor).coerceIn(0.5f, 1.2f)
+                if (!pinchFired && pinchScale < 0.8f) {
+                    pinchFired = true
+                    performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+                    callback?.onPinchIn()
+                }
+                invalidate()
+                return true
+            }
+        })
+    }
 
     // 书柜：当前层铭牌与上下层
     private var shelfLabel: String? = null
@@ -490,6 +513,10 @@ class Shelf3DView @JvmOverloads constructor(
         if (layered) canvas.saveLayerAlpha(0f, 0f, fw, fh, (enterAlpha * 255).toInt())
         canvas.save()
         canvas.translate(0f, shift)
+        if (pinching && pinchScale < 1f) {
+            val k = pinchScale.coerceAtLeast(0.8f)
+            canvas.scale(k, k, width / 2f, floorY)
+        }
         drawPlank(canvas, floorY)
         drawPlate(canvas)
         if (items.isEmpty()) {
@@ -1082,6 +1109,33 @@ class Shelf3DView @JvmOverloads constructor(
     override fun performClick(): Boolean = super.performClick()
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        scaleDetector.onTouchEvent(event)
+        if (event.actionMasked == MotionEvent.ACTION_POINTER_DOWN && !pinching) {
+            pinching = true
+            pinchFired = false
+            pinchScale = 1f
+            removeCallbacks(longPressRunnable)
+            scrubbing = false
+            if (vDragging) {
+                vDragging = false
+                releasePull(0f)
+            }
+            if (dragging) {
+                dragging = false
+                settle(0f)
+            }
+            parent?.requestDisallowInterceptTouchEvent(true)
+        }
+        if (pinching) {
+            val a = event.actionMasked
+            if (a == MotionEvent.ACTION_UP || a == MotionEvent.ACTION_CANCEL) {
+                pinching = false
+                pinchScale = 1f
+                recycleTracker()
+                invalidate()
+            }
+            return true
+        }
         if (items.isEmpty() && prevGroup == null && nextGroup == null) return super.onTouchEvent(event)
         val vt = velocityTracker ?: VelocityTracker.obtain().also { velocityTracker = it }
         vt.addMovement(event)

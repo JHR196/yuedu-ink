@@ -47,6 +47,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/menu_cabinet"
+        android:icon="@drawable/ic_groups"
+        android:title="@string/shelf_cabinet"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/menu_group_manage"
         android:icon="@drawable/ic_groups"
         android:title="@string/group_manage"

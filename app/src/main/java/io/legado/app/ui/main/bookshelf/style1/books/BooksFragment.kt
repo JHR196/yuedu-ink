@@ -160,6 +160,11 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
                 showDialogFragment<GroupManageDialog>()
             }
 
+            override fun onPinchIn() {
+                Shelf3DItems.remember(groupId, binding.shelf3d.centerKey)
+                (parentFragment as? BookshelfFragment1)?.showCabinet()
+            }
+
             override fun onSwitchGroup(delta: Int): Boolean {
                 Shelf3DItems.remember(groupId, binding.shelf3d.centerKey)
                 return (parentFragment as? BookshelfFragment1)?.switchShelfGroup(groupId, delta) ?: false

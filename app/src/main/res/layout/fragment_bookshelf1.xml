@@ -13,9 +13,21 @@
         app:contentLayout="@layout/view_tab_layout_min"
         app:title="@string/bookshelf" />
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/view_pager_bookshelf"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/view_pager_bookshelf"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <io.legado.app.ui.main.bookshelf.shelf3d.ShelfCabinetView
+            android:id="@+id/shelf_cabinet"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
 </LinearLayout>

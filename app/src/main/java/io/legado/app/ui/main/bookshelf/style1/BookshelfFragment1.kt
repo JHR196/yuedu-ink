@@ -5,7 +5,15 @@ package io.legado.app.ui.main.bookshelf.style1
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import io.legado.app.ui.main.bookshelf.shelf3d.ShelfCabinetView
+import io.legado.app.ui.main.bookshelf.shelf3d.Shelf3DItems
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
@@ -61,6 +69,41 @@ class BookshelfFragment1() : BaseBookshelfFragment(R.layout.fragment_bookshelf1)
         setSupportToolbar(binding.titleBar.toolbar)
         initView()
         initBookGroupData()
+        initCabinet()
+    }
+
+    private val cabinetBack = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() = binding.shelfCabinet.dismiss()
+    }
+
+    private fun initCabinet() {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, cabinetBack)
+        binding.shelfCabinet.callback = object : ShelfCabinetView.Callback {
+            override fun onPick(index: Int) {
+                cabinetBack.isEnabled = false
+                if (index in bookGroups.indices && index != binding.viewPagerBookshelf.currentItem) {
+                    binding.viewPagerBookshelf.setCurrentItem(index, false)
+                }
+            }
+        }
+    }
+
+    /** 双指合拢：收成书柜，一层一类 */
+    fun showCabinet() {
+        if (bookGroups.isEmpty() || binding.shelfCabinet.visibility == View.VISIBLE) return
+        val groups = bookGroups.toList()
+        val cur = binding.viewPagerBookshelf.currentItem
+        viewLifecycleOwner.lifecycleScope.launch {
+            val data = withContext(Dispatchers.IO) {
+                groups.map { g ->
+                    val list = appDb.bookDao.flowByGroup(g.groupId).first()
+                        .sortedByDescending { it.durChapterTime }
+                    ShelfCabinetView.Layer(g.groupName, Shelf3DItems.of(list))
+                }
+            }
+            cabinetBack.isEnabled = true
+            binding.shelfCabinet.show(data, cur)
+        }
     }
 
     private val selectedGroup: BookGroup?
@@ -151,6 +194,9 @@ class BookshelfFragment1() : BaseBookshelfFragment(R.layout.fragment_bookshelf1)
 
     override fun onTabSelected(tab: TabLayout.Tab) {
         AppConfig.saveTabPosition = tab.position
+        if (binding.shelfCabinet.isShowing && tab.position != binding.viewPagerBookshelf.currentItem) {
+            binding.shelfCabinet.enter(tab.position)
+        }
     }
 
     override fun gotoTop() {
