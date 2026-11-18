@@ -89,9 +89,11 @@ class Shelf3DView @JvmOverloads constructor(
     private var pitch = 0f
     private var eyeF = 0f
     private var baseY = 0f
+    private var floorY = 0f
     private var unitPx = 1f
     private val maxTurn = Math.toRadians(80.0).toFloat()
     private val pitchAngle = Math.toRadians(9.0).toFloat()
+    private val centerYaw = Math.toRadians(14.0).toFloat()
 
     private val dark = context.isDarkTheme
     private val accent = context.accentColor
@@ -224,6 +226,7 @@ class Shelf3DView @JvmOverloads constructor(
         unitPx = gap * 0.8f
         eyeF = w * 1.8f
         baseY = paddingTop + h * 0.40f
+        floorY = baseY + bookH * 0.5f
         bgPaint.shader = LinearGradient(
             0f, 0f, 0f, h.toFloat(),
             if (dark) 0xFF201E1B.toInt() else 0xFFF5F1E8.toInt(),
@@ -255,13 +258,13 @@ class Shelf3DView @JvmOverloads constructor(
     private fun projectBook(i: Int, out: FloatArray) {
         val d = i - focus
         val s = smooth(abs(d))
-        val theta = -maxTurn * s
+        // 中心书也略侧转，露出书脊厚度
+        val theta = -maxTurn * s - centerYaw * (1 - s)
         val cosT = cos(theta)
         val sinT = sin(theta)
         val cosP = cos(pitchAngle)
         val sinP = sin(pitchAngle)
         val tx = offsetX(d)
-        val ty = -(1 - s) * bookH * 0.035f
         val tz = -(1 - s) * bookT * 2.2f
         val cx = width / 2f
         for (c in 0 until 8) {
@@ -270,15 +273,20 @@ class Shelf3DView @JvmOverloads constructor(
             val z = if (c and 4 == 0) -bookT / 2 else bookT / 2
             val rx = x * cosT + z * sinT
             val rz = -x * sinT + z * cosT
-            val py = y * cosP - rz * sinP
-            val pz = y * sinP + rz * cosP
+            // 视线略向下俯：书顶离眼更远，能看到顶面
+            val py = y * cosP + rz * sinP
+            val pz = -y * sinP + rz * cosP
             val wx = rx + tx
-            val wy = py + ty
             val wz = pz + tz
             val k = eyeF / (eyeF + wz)
             out[c * 2] = cx + wx * k
-            out[c * 2 + 1] = baseY + wy * k
+            out[c * 2 + 1] = baseY + py * k
         }
+        // 每本书的最低点贴住书架板
+        var bottom = -Float.MAX_VALUE
+        for (c in 0 until 8) bottom = max(bottom, out[c * 2 + 1])
+        val dy = floorY - bottom
+        for (c in 0 until 8) out[c * 2 + 1] += dy
     }
 
     private fun quad(corners: FloatArray, a: Int, b: Int, c: Int, d: Int, dst: FloatArray) {
@@ -320,7 +328,6 @@ class Shelf3DView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas) {
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), bgPaint)
         if (items.isEmpty() || bookW <= 0f) return
-        val floorY = baseY + bookH / 2 * cos(pitchAngle)
         drawPlank(canvas, floorY)
 
         val half = ((width / 2f - gap) / pitch).toInt() + 3
@@ -458,7 +465,7 @@ class Shelf3DView @JvmOverloads constructor(
         val key = item.key + "|" + item.cover
         coverCache.get(key)?.let { return it }
         if (requested.add(key)) requestCover(item, key)
-        val genKey = item.key + "|#gen"
+        val genKey = item.key + "|#gen|" + item.name + "|" + item.author
         return coverCache.get(genKey) ?: generateCover(item).also { coverCache.put(genKey, it) }
     }
 
@@ -656,7 +663,8 @@ class Shelf3DView @JvmOverloads constructor(
 
     private fun settle(velocityX: Float) {
         if (items.isEmpty()) return
-        val projected = focus - velocityX / unitPx * 0.16f
+        // 惯性按书脊间距换算：快速一划可以掠过多本侧书
+        val projected = focus - velocityX / pitch * 0.11f
         animateTo(projected.roundToInt())
     }
 
@@ -700,21 +708,17 @@ class Shelf3DView @JvmOverloads constructor(
                         removeCallbacks(longPressRunnable)
                         parent?.requestDisallowInterceptTouchEvent(false)
                     } else if (abs(dx) > touchSlop) {
+                        // 横向手势始终由书架处理，首尾以阻尼回弹，不切换外层页面
                         removeCallbacks(longPressRunnable)
-                        val atStart = focus <= 0.01f && dx > 0
-                        val atEnd = focus >= items.size - 1.01f && dx < 0
-                        if (atStart || atEnd) {
-                            // 首尾继续拖动交还给外层分页
-                            parent?.requestDisallowInterceptTouchEvent(false)
-                        } else {
-                            dragging = true
-                            lastX = event.x
-                        }
+                        dragging = true
+                        lastX = event.x
                     }
                 }
                 if (dragging) {
-                    focus = (focus - (event.x - lastX) / unitPx)
-                        .coerceIn(-0.3f, items.size - 1 + 0.3f)
+                    var delta = (event.x - lastX) / unitPx
+                    val over = focus < 0f || focus > items.size - 1f
+                    if (over) delta *= 0.35f
+                    focus = (focus - delta).coerceIn(-0.45f, items.size - 1 + 0.45f)
                     lastX = event.x
                     updateCenter(true)
                     invalidate()
