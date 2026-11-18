@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayoutManager
 import io.legado.app.R
+import io.legado.app.utils.getCompatColor
 import io.legado.app.base.VMBaseActivity
 import io.legado.app.constant.AppLog
 import io.legado.app.constant.PreferKey
@@ -271,8 +272,8 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
     private fun initOtherView() {
         binding.fbStartStop.backgroundTintList =
             Selector.colorBuild()
-                .setDefaultColor(accentColor)
-                .setPressedColor(ColorUtils.darkenColor(accentColor))
+                .setDefaultColor(getCompatColor(R.color.ink_accent))
+                .setPressedColor(ColorUtils.darkenColor(getCompatColor(R.color.ink_accent)))
                 .create()
         binding.fbStartStop.setOnClickListener {
             if (viewModel.isSearchLiveData.value == true) {
@@ -373,15 +374,15 @@ class SearchActivity : VMBaseActivity<ActivityBookSearchBinding, SearchViewModel
         booksFlowJob?.cancel()
         booksFlowJob = lifecycleScope.launch {
             if (key.isNullOrBlank()) {
-                binding.tvBookShow.gone()
+                binding.llBookShow.gone()
                 binding.rvBookshelfSearch.gone()
             } else {
                 appDb.bookDao.flowSearch(key).conflate().collect {
                     if (it.isEmpty()) {
-                        binding.tvBookShow.gone()
+                        binding.llBookShow.gone()
                         binding.rvBookshelfSearch.gone()
                     } else {
-                        binding.tvBookShow.visible()
+                        binding.llBookShow.visible()
                         binding.rvBookshelfSearch.visible()
                     }
                     bookAdapter.setItems(it)

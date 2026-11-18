@@ -2,6 +2,7 @@ package io.legado.app.ui.widget.text
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Typeface
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RoundRectShape
 import android.text.TextUtils
@@ -89,20 +90,23 @@ class BadgeView @JvmOverloads constructor(
         }
 
         //setTypeface(Typeface.DEFAULT_BOLD);
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
-        setPadding(dip2Px(5f), dip2Px(1f), dip2Px(5f), dip2Px(1f))
+        val androidNs = "http://schemas.android.com/apk/res/android"
+        val customSize = attrs?.getAttributeValue(androidNs, "textSize") != null
+        if (!customSize) setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
+        typeface = Typeface.MONOSPACE
+        setPadding(dip2Px(6f), dip2Px(1f), dip2Px(6f), dip2Px(1f))
         radius = radios.toFloat()
 
         // set default background
-        setBackground(radius, context.accentColor)
+        setBackground(radius, context.getCompatColor(R.color.ink_accent))
 
         gravity = Gravity.CENTER
 
         // default values
         isHideOnNull = true
         setBadgeCount(0)
-        minWidth = dip2Px(16f)
-        minHeight = dip2Px(16f)
+        if (attrs?.getAttributeValue(androidNs, "minWidth") == null) minWidth = dip2Px(16f)
+        if (attrs?.getAttributeValue(androidNs, "minHeight") == null) minHeight = dip2Px(16f)
     }
 
     override fun setBackgroundColor(color: Int) {
@@ -152,9 +156,11 @@ class BadgeView @JvmOverloads constructor(
 
     fun setHighlight(highlight: Boolean) {
         if (highlight) {
-            setBackgroundColor(context.accentColor)
+            setBackgroundColor(context.getCompatColor(R.color.ink_accent))
+            setTextColor(Color.WHITE)
         } else {
-            setBackgroundColor(context.getCompatColor(R.color.darker_gray))
+            setBackgroundColor(context.getCompatColor(R.color.ink_accent_soft))
+            setTextColor(context.getCompatColor(R.color.ink_accent))
         }
     }
 

@@ -2,35 +2,48 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="6dp"
-    android:background="?android:attr/selectableItemBackground"
-    android:orientation="vertical">
+    android:background="@drawable/mg_bg_line"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:minHeight="56dp"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingTop="14dp"
+    android:paddingRight="20dp"
+    android:paddingBottom="14dp">
 
     <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:scrollbars="none">
+
         <TextView
             android:id="@+id/text_title"
-            android:text="@string/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="none"
+            android:fontFamily="serif"
             android:singleLine="true"
-            android:ellipsize="none" />
+            android:text="@string/title"
+            android:textColor="@color/ink_text"
+            android:textSize="15sp" />
     </HorizontalScrollView>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
         android:scrollbars="none">
+
         <TextView
             android:id="@+id/text_record"
-            android:text="@string/read_record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:autoLink="web"
+            android:ellipsize="none"
             android:singleLine="true"
-            android:ellipsize="none" />
+            android:text="@string/read_record"
+            android:textColor="@color/ink_text_sub"
+            android:textSize="12sp" />
     </HorizontalScrollView>
 
 </LinearLayout>

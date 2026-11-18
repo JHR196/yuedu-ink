@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/background_menu"
-        android:elevation="5dp"
+        android:elevation="0dp"
         android:theme="?attr/actionBarStyle"
         app:displayHomeAsUp="false"
         app:fitStatusBar="false"
@@ -20,11 +20,19 @@
         app:title="@string/search_scope"
         app:titleTextAppearance="@style/ToolbarTitle" />
 
+    <View
+        android:id="@+id/ink_auto_dialog_search_scope_1"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/ink_line"
+        app:layout_constraintTop_toBottomOf="@id/tool_bar" />
+
     <RadioGroup
         android:id="@+id/rg_scope"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="11dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@+id/tool_bar">
@@ -37,7 +45,8 @@
             android:layout_weight="1"
             android:button="@null"
             android:gravity="center"
-            android:padding="5dp"
+            android:fontFamily="serif"
+            android:padding="6dp"
             android:singleLine="true"
             android:checked="true"
             android:text="@string/group" />
@@ -50,7 +59,8 @@
             android:layout_weight="1"
             android:button="@null"
             android:gravity="center"
-            android:padding="5dp"
+            android:fontFamily="serif"
+            android:padding="6dp"
             android:singleLine="true"
             android:text="@string/book_source" />
 
@@ -71,8 +81,8 @@
         android:background="@color/background"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
+        android:paddingLeft="14dp"
+        android:paddingRight="14dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <io.legado.app.ui.widget.text.AccentTextView
@@ -96,7 +106,7 @@
             android:layout_marginRight="16dp"
             android:padding="12dp"
             android:text="@string/cancel"
-            android:textColor="@color/secondaryText"
+            android:textColor="@color/ink_text_sub"
             tools:ignore="RtlHardcoded" />
 
         <io.legado.app.ui.widget.text.AccentTextView

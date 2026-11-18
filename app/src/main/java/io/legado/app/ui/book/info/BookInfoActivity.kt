@@ -166,6 +166,18 @@ class BookInfoActivity :
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
             binding.tvIntro.revealOnFocusHint = false
         }
+        binding.tvIntro.maxLines = 4
+        binding.tvIntro.ellipsize = android.text.TextUtils.TruncateAt.END
+        binding.tvIntro.setOnClickListener {
+            val v = binding.tvIntro
+            if (v.maxLines == 4) {
+                v.maxLines = Int.MAX_VALUE
+                v.ellipsize = null
+            } else {
+                v.maxLines = 4
+                v.ellipsize = android.text.TextUtils.TruncateAt.END
+            }
+        }
         viewModel.bookData.observe(this) { showBook(it) }
         viewModel.chapterListData.observe(this) { upLoading(false, it) }
         viewModel.waitDialogData.observe(this) { upWaitDialogStatus(it) }

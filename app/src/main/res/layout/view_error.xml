@@ -13,8 +13,13 @@
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_error_message"
         style="@style/Style.Text.Primary.Normal"
+        android:fontFamily="serif"
+        android:gravity="center"
         android:paddingTop="16dp"
-        android:paddingBottom="16dp" />
+        android:paddingBottom="16dp"
+        android:textColor="@color/ink_text"
+        android:textSize="15sp"
+        android:textStyle="bold" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_error_retry"

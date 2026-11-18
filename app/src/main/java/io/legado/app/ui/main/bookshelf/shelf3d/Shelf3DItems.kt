@@ -2,6 +2,8 @@ package io.legado.app.ui.main.bookshelf.shelf3d
 
 import io.legado.app.data.entities.Book
 import io.legado.app.data.entities.BookGroup
+import android.content.Context
+import splitties.init.appCtx
 
 /**
  * 书架数据到立体书架展示项的单向映射，以及按分组记住的焦点书
@@ -10,10 +12,16 @@ object Shelf3DItems {
 
     private val lastKeys = HashMap<Long, String>()
 
-    fun lastKey(groupId: Long): String? = lastKeys[groupId]
+    /** 独立的小文件，只存「分组 -> 焦点 bookUrl」，不进入原有配置与备份 */
+    private val prefs by lazy { appCtx.getSharedPreferences("shelf3d_focus", Context.MODE_PRIVATE) }
+
+    fun lastKey(groupId: Long): String? =
+        lastKeys[groupId] ?: prefs.getString(groupId.toString(), null)?.also { lastKeys[groupId] = it }
 
     fun remember(groupId: Long, key: String?) {
-        if (key != null) lastKeys[groupId] = key
+        if (key == null || lastKeys[groupId] == key) return
+        lastKeys[groupId] = key
+        prefs.edit().putString(groupId.toString(), key).apply()
     }
 
     fun of(any: Any): Shelf3DView.Item? = when (any) {

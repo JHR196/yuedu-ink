@@ -32,6 +32,8 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="6dp"
             android:ems="1"
+            android:fontFamily="serif"
+            android:textStyle="bold"
             android:text="阅读"
             android:textSize="49sp"
             app:layout_constraintRight_toLeftOf="@+id/tv_sub_title"

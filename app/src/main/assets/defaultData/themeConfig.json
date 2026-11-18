@@ -1,5 +1,21 @@
 [
   {
+    "themeName": "纸墨",
+    "isNightTheme": false,
+    "primaryColor": "#F3EEE4",
+    "accentColor": "#B5452F",
+    "backgroundColor": "#F6F2EA",
+    "bottomBackground": "#EDE6D9"
+  },
+  {
+    "themeName": "夜墨",
+    "isNightTheme": true,
+    "primaryColor": "#1F1D1A",
+    "accentColor": "#D9785B",
+    "backgroundColor": "#161513",
+    "bottomBackground": "#1F1D1A"
+  },
+  {
     "themeName": "默认",
     "isNightTheme": false,
     "primaryColor": "#795548",

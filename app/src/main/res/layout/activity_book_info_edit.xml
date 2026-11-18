@@ -16,11 +16,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="5dp">
+        android:paddingStart="20dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="8dp">
 
         <io.legado.app.ui.widget.image.CoverImageView
             android:id="@+id/iv_cover"
-            android:layout_width="90dp"
+            android:layout_width="94dp"
             android:layout_height="130dp"
             android:contentDescription="@string/img_cover"
             android:scaleType="centerCrop"
@@ -80,8 +83,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/book_type"
-                    android:layout_marginLeft="12dp"
-                    android:layout_marginRight="3dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="8dp"
+                    android:fontFamily="serif"
+                    android:textStyle="bold"
                     tools:ignore="RtlHardcoded" />
 
                 <androidx.appcompat.widget.AppCompatSpinner
@@ -97,6 +102,8 @@
                 android:id="@+id/til_cover_url"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_marginEnd="14dp"
                 android:layout_marginTop="5dp"
                 android:hint="@string/cover_path">
 
@@ -110,8 +117,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingStart="5dp"
-                android:paddingEnd="5dp">
+                android:paddingStart="20dp"
+                android:paddingTop="6dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="6dp">
 
                 <io.legado.app.ui.widget.text.StrokeTextView
                     android:id="@+id/tv_select_cover"
@@ -144,6 +153,8 @@
                 android:id="@+id/til_book_jj"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="14dp"
+                android:layout_marginEnd="14dp"
                 android:layout_marginTop="10dp"
                 android:hint="@string/book_intro">
 

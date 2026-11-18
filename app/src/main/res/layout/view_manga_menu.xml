@@ -98,12 +98,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
+                android:background="@drawable/rd2_bg_pill_outline"
+                android:paddingLeft="14dp"
+                android:paddingRight="14dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
                 android:text="@string/previous_chapter"
                 android:textColor="@color/primaryText"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 tools:ignore="TouchTargetSizeCheck" />
 
             <io.legado.app.lib.theme.view.ThemeSeekBar
@@ -119,12 +121,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
+                android:background="@drawable/rd2_bg_pill_outline"
+                android:paddingLeft="14dp"
+                android:paddingRight="14dp"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
                 android:text="@string/next_chapter"
                 android:textColor="@color/primaryText"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 tools:ignore="TouchTargetSizeCheck" />
         </LinearLayout>
     </LinearLayout>

@@ -7,7 +7,20 @@
     android:layout_height="wrap_content"
     android:background="?android:attr/selectableItemBackground"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:paddingStart="20dp"
+    android:paddingTop="14dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="14dp">
+
+    <View
+        android:id="@+id/bk_cur_bar"
+        android:layout_width="3dp"
+        android:layout_height="0dp"
+        android:background="@drawable/bk_bar_current"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/iv_locked"
@@ -22,12 +35,28 @@
         app:tint="@color/secondaryText" />
 
     <TextView
+        android:id="@+id/tv_bk_no"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="monospace"
+        android:letterSpacing="0.1"
+        android:paddingStart="6dp"
+        android:singleLine="true"
+        android:textColor="@color/ink_accent"
+        android:textSize="11sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/iv_locked"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="001" />
+
+    <TextView
         android:id="@+id/tv_chapter_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textSize="14sp"
         android:singleLine="true"
         app:layout_constraintBottom_toTopOf="@id/barrier"
-        app:layout_constraintLeft_toRightOf="@+id/iv_locked"
+        app:layout_constraintLeft_toRightOf="@+id/tv_bk_no"
         app:layout_constraintRight_toLeftOf="@+id/iv_checked"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -47,7 +76,7 @@
         android:textSize="12sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/iv_locked"
+        app:layout_constraintLeft_toRightOf="@+id/tv_bk_no"
         app:layout_constraintTop_toBottomOf="@+id/barrier"
         tools:ignore="RtlSymmetry" />
 
@@ -68,8 +97,8 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:contentDescription="@string/success"
-        android:padding="4dp"
-        android:src="@drawable/ic_check"
+        android:padding="9dp"
+        android:src="@drawable/bk_dot_cached"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"

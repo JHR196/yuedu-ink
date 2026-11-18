@@ -33,6 +33,31 @@
         <item name="android:popupMenuStyle">@style/Style.PopupMenu</item>
         <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="alertDialogTheme">@style/ink_AlertDialog</item>
+        <item name="android:divider">@color/ink_line</item>
+    </style>
+
+    <style name="ink_AlertDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:textColorAlertDialogListItem">@color/ink_text</item>
+        <item name="android:windowBackground">@drawable/ink_bg_dialog</item>
+        <item name="buttonBarButtonStyle">@style/ink_DialogButton</item>
+        <item name="buttonBarPositiveButtonStyle">@style/ink_DialogButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/ink_DialogButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/ink_DialogButton</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:textColorPrimary">@color/ink_text</item>
+        <item name="android:textColorSecondary">@color/ink_text_sub</item>
+        <item name="android:colorBackground">@color/ink_card</item>
+    </style>
+
+    <style name="ink_NavLabel" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <style name="ink_DialogButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/accent</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay.Light" parent="ThemeOverlay.AppCompat.Light">
@@ -80,6 +105,8 @@
 
     <style name="ToolbarTitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">serif</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     //*******************Widget Style**********************************//

@@ -5,13 +5,16 @@
     android:layout_height="wrap_content"
     android:gravity="center"
     android:orientation="horizontal"
-    android:padding="8dp">
+    android:paddingHorizontal="20dp"
+    android:paddingVertical="8dp">
 
     <io.legado.app.lib.theme.view.ThemeCheckBox
         android:id="@+id/cb_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:fontFamily="serif"
+        android:textColor="@color/ink_text"
         tools:ignore="RtlSymmetry" />
 
     <io.legado.app.lib.theme.view.ThemeSwitch

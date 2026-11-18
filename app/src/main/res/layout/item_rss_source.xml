@@ -6,7 +6,8 @@
     android:background="?android:attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="16dp">
+    android:paddingHorizontal="20dp"
+    android:paddingVertical="10dp">
 
     <io.legado.app.lib.theme.view.ThemeCheckBox
         android:id="@+id/cb_source"
@@ -15,7 +16,8 @@
         android:layout_gravity="center"
         android:layout_weight="1"
         android:singleLine="true"
-        android:textColor="@color/primaryText" />
+        android:fontFamily="serif"
+        android:textColor="@color/ink_text" />
 
     <io.legado.app.lib.theme.view.ThemeSwitch
         android:id="@+id/swt_enabled"

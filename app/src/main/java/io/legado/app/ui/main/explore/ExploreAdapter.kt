@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.core.view.children
 import com.google.android.flexbox.FlexboxLayout
 import io.legado.app.R
+import io.legado.app.utils.getCompatColor
 import io.legado.app.base.adapter.ItemViewHolder
 import io.legado.app.base.adapter.RecyclerAdapter
 import io.legado.app.data.entities.BookSourcePart
@@ -110,7 +111,11 @@ class ExploreAdapter(context: Context, val callBack: CallBack) :
     @Synchronized
     private fun getFlexboxChild(flexbox: FlexboxLayout): TextView {
         return if (recycler.isEmpty()) {
-            ItemFilletTextBinding.inflate(inflater, flexbox, false).root
+            ItemFilletTextBinding.inflate(inflater, flexbox, false).root.apply {
+                setBackgroundResource(R.drawable.shf_chip_bg)
+                setTextColor(context.getCompatColor(R.color.ink_text_sub))
+                textSize = 12f
+            }
         } else {
             recycler.removeLastElement() as TextView
         }

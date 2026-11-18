@@ -13,11 +13,13 @@
 
     <io.legado.app.ui.widget.image.CoverImageView
         android:id="@+id/iv_cover"
-        android:layout_width="66dp"
-        android:layout_height="90dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="12dp"
+        android:layout_width="69dp"
+        android:layout_height="92dp"
+        android:elevation="2dp"
+        android:outlineProvider="bounds"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="14dp"
         android:contentDescription="@string/img_cover"
         android:scaleType="centerCrop"
         android:src="@drawable/image_cover_default"
@@ -31,7 +33,7 @@
         android:id="@+id/fl_has_new"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="20dp"
         app:layout_constraintBottom_toBottomOf="@+id/tv_name"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_name">
@@ -68,7 +70,9 @@
         android:scrollbars="none"
         android:singleLine="true"
         android:text="@string/book_name"
-        android:textColor="@color/primaryText"
+        android:fontFamily="serif"
+        android:textStyle="bold"
+        android:textColor="@color/ink_text"
         android:textSize="16sp"
         app:layout_constraintBottom_toTopOf="@+id/tv_author"
         app:layout_constraintLeft_toRightOf="@+id/iv_cover"
@@ -88,7 +92,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/tv_author"
         app:layout_constraintLeft_toLeftOf="@+id/tv_name"
         app:layout_constraintTop_toTopOf="@+id/tv_author"
-        app:tint="@color/tv_text_summary"
+        app:tint="@color/ink_text_sub"
         tools:ignore="RtlHardcoded,RtlSymmetry" />
 
     <TextView
@@ -101,8 +105,8 @@
         android:scrollbars="none"
         android:singleLine="true"
         android:text="@string/author"
-        android:textColor="@color/tv_text_summary"
-        android:textSize="13sp"
+        android:textColor="@color/ink_text_sub"
+        android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/tv_read"
         app:layout_constraintLeft_toRightOf="@+id/iv_author"
         app:layout_constraintRight_toLeftOf="@id/tv_last_update_time"
@@ -119,8 +123,9 @@
         android:scrollbars="none"
         android:singleLine="true"
         android:text=""
-        android:textColor="@color/tv_text_summary"
-        android:textSize="13sp"
+        android:textColor="@color/ink_text_faint"
+        android:fontFamily="monospace"
+        android:textSize="10sp"
         app:layout_constraintBottom_toTopOf="@+id/tv_read"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toRightOf="@+id/tv_author"
@@ -140,7 +145,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/tv_read"
         app:layout_constraintLeft_toLeftOf="@+id/tv_name"
         app:layout_constraintTop_toTopOf="@+id/tv_read"
-        app:tint="@color/tv_text_summary"
+        app:tint="@color/ink_accent"
         tools:ignore="RtlHardcoded,RtlSymmetry" />
 
     <TextView
@@ -151,8 +156,8 @@
         android:scrollbars="none"
         android:singleLine="true"
         android:text="@string/read_dur_progress"
-        android:textColor="@color/tv_text_summary"
-        android:textSize="13sp"
+        android:textColor="@color/ink_text_sub"
+        android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@id/tv_last"
         app:layout_constraintLeft_toRightOf="@+id/iv_read"
         app:layout_constraintRight_toRightOf="@+id/fl_has_new"
@@ -171,7 +176,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/tv_last"
         app:layout_constraintLeft_toLeftOf="@+id/tv_name"
         app:layout_constraintTop_toTopOf="@+id/tv_last"
-        app:tint="@color/tv_text_summary"
+        app:tint="@color/ink_text_faint"
         tools:ignore="RtlHardcoded,RtlSymmetry" />
 
     <TextView
@@ -182,13 +187,32 @@
         android:scrollbars="none"
         android:singleLine="true"
         android:text="@string/lasted_show"
-        android:textColor="@color/tv_text_summary"
-        android:textSize="13sp"
+        android:textColor="@color/ink_text_faint"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/iv_last"
         app:layout_constraintRight_toRightOf="@id/fl_has_new"
         app:layout_constraintTop_toBottomOf="@+id/tv_read"
         tools:ignore="TextContrastCheck" />
+
+    <View
+        android:id="@+id/ink_auto_item_bookshelf_list_1"
+        android:elevation="3dp"
+        android:layout_width="3dp"
+        android:layout_height="0dp"
+        android:background="@drawable/shf_spine"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_cover"
+        app:layout_constraintLeft_toLeftOf="@+id/iv_cover"
+        app:layout_constraintTop_toTopOf="@+id/iv_cover" />
+
+    <View
+        android:id="@+id/ink_auto_item_bookshelf_list_2"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:background="@drawable/shf_divider"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_name"
+        app:layout_constraintRight_toRightOf="parent" />
 
     <View
         android:id="@+id/vw_foreground"

@@ -68,9 +68,9 @@ class SearchMenu @JvmOverloads constructor(
     }
 
     private fun initView() = binding.run {
-        llSearchBaseInfo.setBackgroundColor(bgColor)
+        llSearchBaseInfo.setBackgroundColor(ColorUtils.adjustAlpha(bgColor, 0.94f))
         tvCurrentSearchInfo.setTextColor(bottomBackgroundList)
-        llBottomBg.setBackgroundColor(bgColor)
+        llBottomBg.setBackgroundColor(ColorUtils.adjustAlpha(bgColor, 0.94f))
         fabLeft.backgroundTintList = bottomBackgroundList
         fabLeft.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)
         fabRight.backgroundTintList = bottomBackgroundList

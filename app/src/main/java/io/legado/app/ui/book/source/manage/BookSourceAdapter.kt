@@ -99,7 +99,7 @@ class BookSourceAdapter(
         binding.run {
             if (payloads.isEmpty()) {
                 root.setBackgroundColor(ColorUtils.withAlpha(context.backgroundColor, 0.5f))
-                cbBookSource.text = item.getDisPlayNameGroup()
+                upNameGroup(binding, item)
                 swtEnabled.isChecked = item.enabled
                 cbBookSource.isChecked = selected.contains(item)
                 upCheckSourceMessage(binding, item)
@@ -111,7 +111,7 @@ class BookSourceAdapter(
                     bundle.keySet().forEach {
                         when (it) {
                             "enabled" -> swtEnabled.isChecked = bundle.getBoolean("enabled")
-                            "upName" -> cbBookSource.text = item.getDisPlayNameGroup()
+                            "upName" -> upNameGroup(binding, item)
                             "upExplore" -> upShowExplore(ivExplore, item)
                             "selected" -> cbBookSource.isChecked = selected.contains(item)
                             "checkSourceMessage" -> upCheckSourceMessage(binding, item)
@@ -203,6 +203,17 @@ class BookSourceAdapter(
             true
         }
         popupMenu.show()
+    }
+
+    private fun upNameGroup(binding: ItemBookSourceBinding, item: BookSourcePart) = binding.run {
+        cbBookSource.text = item.bookSourceName
+        if (item.bookSourceGroup.isNullOrBlank()) {
+            tvMg2Group.gone()
+        } else {
+            tvMg2Group.text = item.bookSourceGroup
+            tvMg2Group.visible()
+        }
+        tvMg2Url.text = item.bookSourceUrl
     }
 
     private fun upShowExplore(iv: ImageView, source: BookSourcePart) {

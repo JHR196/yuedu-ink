@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingHorizontal="8dp"
+            android:paddingHorizontal="16dp"
             tools:ignore="VisualLintBounds">
 
             <io.legado.app.lib.theme.view.ThemeCheckBox
@@ -60,7 +60,10 @@
         android:layout_width="match_parent"
         android:layout_height="36dp"
         android:background="@color/background"
-        android:elevation="3dp"
+        android:elevation="0dp"
+        app:tabIndicatorColor="@color/ink_accent"
+        app:tabSelectedTextColor="@color/ink_text"
+        app:tabTextColor="@color/ink_text_sub"
         tools:ignore="SpeakableTextPresentCheck" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -68,6 +71,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
+        android:paddingHorizontal="12dp"
         app:layoutManager="io.legado.app.ui.widget.recycler.NoChildScrollLinearLayoutManager"
         tools:listitem="@layout/item_source_edit" />
 

@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="@string/bg_image"
+        android:alpha="0.35"
         android:scaleType="centerCrop"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ImageContrastCheck" />
@@ -19,17 +20,17 @@
         android:id="@+id/vw_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#50000000" />
+        android:background="@android:color/transparent" />
 
     <io.legado.app.ui.widget.TitleBar
         android:id="@+id/title_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="@string/book_info"
-        app:themeMode="dark" />
+        app:title="@string/book_info" />
 
     <LinearLayout
+        android:id="@+id/ink_auto_activity_book_info_1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="horizontal"
@@ -48,29 +49,27 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="30dp">
+                android:layout_marginTop="12dp"
+                android:paddingBottom="16dp">
 
                 <io.legado.app.ui.widget.image.ArcView
                     android:id="@+id/arc_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="78dp"
-                    android:layout_marginTop="128dp"
-                    app:arcDirectionTop="true"
-                    app:arcHeight="36dp"
-                    app:bgColor="@color/background" />
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone" />
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
                     android:layout_margin="3dp"
-                    app:cardCornerRadius="5dp"
-                    app:cardElevation="8dp">
+                    app:cardCornerRadius="3dp"
+                    app:cardElevation="2dp">
 
                     <io.legado.app.ui.widget.image.CoverImageView
                         android:id="@+id/iv_cover"
                         android:layout_width="130dp"
-                        android:layout_height="200dp"
+                        android:layout_height="180dp"
                         android:contentDescription="@string/img_cover"
                         android:scaleType="centerCrop"
                         android:src="@drawable/image_cover_default"
@@ -84,7 +83,7 @@
                 android:id="@+id/ll_info"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/background"
+                android:background="@android:color/transparent"
                 android:orientation="vertical"
                 android:paddingLeft="10dp"
                 android:paddingTop="8dp"
@@ -97,12 +96,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="6dp"
+                    android:fontFamily="serif"
                     android:gravity="center"
                     android:includeFontPadding="false"
                     android:singleLine="true"
                     android:text="@string/book_name"
-                    android:textColor="@color/primaryText"
-                    android:textSize="18sp"
+                    android:textColor="@color/ink_text"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
                     tools:ignore="RtlHardcoded" />
 
                 <io.legado.app.ui.widget.LabelsBar
@@ -141,8 +142,9 @@
                         android:includeFontPadding="false"
                         android:singleLine="true"
                         android:text="@string/author"
-                        android:textColor="@color/tv_text_summary"
-                        android:textSize="13sp"
+                        android:fontFamily="monospace"
+                        android:textColor="@color/ink_text_sub"
+                        android:textSize="12sp"
                         tools:ignore="NestedWeights,TextContrastCheck" />
 
                 </LinearLayout>
@@ -217,8 +219,9 @@
                                 android:includeFontPadding="false"
                                 android:paddingRight="6dp"
                                 android:singleLine="true"
-                                android:textColor="@color/tv_text_summary"
-                                android:textSize="13sp"
+                                android:fontFamily="monospace"
+                                android:textColor="@color/ink_text_sub"
+                                android:textSize="12sp"
                                 tools:ignore="NestedWeights,RtlHardcoded,RtlSymmetry,TextContrastCheck"
                                 tools:text="@string/origin_format" />
 
@@ -227,11 +230,11 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
-                                android:paddingLeft="5dp"
-                                android:paddingRight="5dp"
+                                android:paddingLeft="10dp"
+                                android:paddingRight="10dp"
                                 android:text="@string/change_origin"
                                 android:textSize="13sp"
-                                app:radius="2dp" />
+                                app:radius="999dp" />
 
                         </LinearLayout>
 
@@ -263,8 +266,9 @@
                                 android:includeFontPadding="false"
                                 android:paddingRight="6dp"
                                 android:singleLine="true"
-                                android:textColor="@color/tv_text_summary"
-                                android:textSize="13sp"
+                                android:fontFamily="monospace"
+                                android:textColor="@color/ink_text_sub"
+                                android:textSize="12sp"
                                 tools:ignore="NestedWeights,RtlHardcoded,RtlSymmetry,TextContrastCheck"
                                 tools:text="@string/read_dur_progress" />
 
@@ -296,8 +300,9 @@
                                 android:includeFontPadding="false"
                                 android:paddingRight="6dp"
                                 android:singleLine="true"
-                                android:textColor="@color/tv_text_summary"
-                                android:textSize="13sp"
+                                android:fontFamily="monospace"
+                                android:textColor="@color/ink_text_sub"
+                                android:textSize="12sp"
                                 tools:ignore="NestedWeights,RtlHardcoded,RtlSymmetry,TextContrastCheck"
                                 tools:text="@string/group_s" />
 
@@ -306,11 +311,11 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
-                                android:paddingLeft="5dp"
-                                android:paddingRight="5dp"
+                                android:paddingLeft="10dp"
+                                android:paddingRight="10dp"
                                 android:text="@string/change_group"
                                 android:textSize="13sp"
-                                app:radius="2dp" />
+                                app:radius="999dp" />
 
                         </LinearLayout>
 
@@ -340,8 +345,9 @@
                                 android:includeFontPadding="false"
                                 android:paddingRight="6dp"
                                 android:singleLine="true"
-                                android:textColor="@color/tv_text_summary"
-                                android:textSize="13sp"
+                                android:fontFamily="monospace"
+                                android:textColor="@color/ink_text_sub"
+                                android:textSize="12sp"
                                 tools:ignore="NestedWeights,RtlHardcoded,RtlSymmetry,TextContrastCheck"
                                 tools:text="@string/toc_s" />
 
@@ -350,11 +356,11 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="8dp"
-                                android:paddingLeft="5dp"
-                                android:paddingRight="5dp"
+                                android:paddingLeft="10dp"
+                                android:paddingRight="10dp"
                                 android:text="@string/view_toc"
                                 android:textSize="13sp"
-                                app:radius="2dp" />
+                                app:radius="999dp" />
 
                         </LinearLayout>
 
@@ -371,7 +377,8 @@
                         android:paddingLeft="8dp"
                         android:paddingBottom="8dp"
                         android:text="@string/book_intro"
-                        android:textColor="@color/secondaryText"
+                        android:lineSpacingMultiplier="1.3"
+                        android:textColor="@color/ink_text_sub"
                         android:textIsSelectable="true"
                         android:textSize="14sp"
                         android:visibility="visible"
@@ -384,7 +391,7 @@
             <LinearLayout
                 android:id="@+id/fl_action"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="wrap_content"
                 android:background="@color/background_menu"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toBottomOf="parent">
@@ -392,9 +399,12 @@
                 <TextView
                     android:id="@+id/tv_shelf"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
                     android:layout_weight="1"
-                    android:background="?attr/selectableItemBackground"
+                    android:background="@drawable/bk_btn_outline"
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center"
@@ -406,12 +416,17 @@
                 <io.legado.app.ui.widget.text.AccentBgTextView
                     android:id="@+id/tv_read"
                     android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_weight="1.4"
                     android:gravity="center"
                     android:includeFontPadding="false"
                     android:text="@string/reading"
-                    android:textSize="15sp" />
+                    android:textSize="15sp"
+                    app:radius="999dp" />
 
             </LinearLayout>
 

@@ -8,7 +8,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp">
+        <View
+            android:layout_width="36dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/rd2_handle"
+            android:importantForAccessibility="no" />
+
 
         <LinearLayout
             android:id="@+id/ll_header_padding"
@@ -24,12 +35,14 @@
                 android:paddingBottom="10dp">
 
                 <io.legado.app.ui.widget.text.AccentTextView
+            android:fontFamily="monospace"
+            android:letterSpacing="0.15"
                     android:id="@+id/tv_header_padding"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/header"
-                    android:textSize="18sp" />
+                    android:textSize="11sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -75,13 +88,15 @@
         </LinearLayout>
 
         <io.legado.app.ui.widget.text.AccentTextView
+            android:fontFamily="monospace"
+            android:letterSpacing="0.15"
             android:id="@+id/tv_body_padding"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:text="@string/main_body"
-            android:textSize="18sp" />
+            android:textSize="11sp" />
 
         <io.legado.app.ui.widget.DetailSeekBar
             android:id="@+id/dsb_padding_top"
@@ -118,13 +133,15 @@
             android:orientation="horizontal">
 
             <io.legado.app.ui.widget.text.AccentTextView
+            android:fontFamily="monospace"
+            android:letterSpacing="0.15"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingTop="10dp"
                 android:paddingBottom="10dp"
                 android:text="@string/footer"
-                android:textSize="18sp" />
+                android:textSize="11sp" />
 
             <TextView
                 android:layout_width="wrap_content"

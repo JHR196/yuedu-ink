@@ -16,7 +16,15 @@
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:tabMode="scrollable" />
+        app:tabIndicatorColor="@color/ink_accent"
+        app:tabMode="scrollable"
+        app:tabSelectedTextColor="@color/ink_text"
+        app:tabTextColor="@color/ink_text_sub" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/ink_line" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/view_pager"

@@ -8,14 +8,15 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import io.legado.app.R
 import io.legado.app.databinding.ViewNavigationBadgeBinding
 import io.legado.app.help.config.AppConfig
 import io.legado.app.lib.theme.Selector
 import io.legado.app.lib.theme.ThemeStore
 import io.legado.app.lib.theme.bottomBackground
-import io.legado.app.lib.theme.getSecondaryTextColor
 import io.legado.app.ui.widget.text.BadgeView
 import io.legado.app.utils.ColorUtils
+import io.legado.app.utils.getCompatColor
 
 class ThemeBottomNavigationVIew(context: Context, attrs: AttributeSet) :
     BottomNavigationView(context, attrs) {
@@ -23,8 +24,11 @@ class ThemeBottomNavigationVIew(context: Context, attrs: AttributeSet) :
     init {
         val bgColor = context.bottomBackground
         setBackgroundColor(bgColor)
-        val textIsDark = ColorUtils.isColorLight(bgColor)
-        val textColor = context.getSecondaryTextColor(textIsDark)
+        val textColor = if (ColorUtils.isColorLight(bgColor)) {
+            context.getCompatColor(R.color.ink_text_faint)
+        } else {
+            ColorUtils.withAlpha(Color.WHITE, 0.55f)
+        }
         val colorStateList = Selector.colorBuild()
             .setDefaultColor(textColor)
             .setSelectedColor(ThemeStore.accentColor(context)).create()

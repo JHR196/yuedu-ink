@@ -19,8 +19,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.os.SystemClock
-import android.text.Layout
-import android.text.StaticLayout
 import android.text.TextPaint
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -36,13 +34,17 @@ import androidx.core.graphics.ColorUtils
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import io.legado.app.constant.AppPattern
 import io.legado.app.help.config.AppConfig
 import io.legado.app.help.glide.ImageLoader
 import io.legado.app.help.glide.OkHttpModelLoader
 import io.legado.app.lib.theme.accentColor
-import io.legado.app.lib.theme.isDarkTheme
+import io.legado.app.lib.theme.backgroundColor
+import io.legado.app.model.BookCover
 import io.legado.app.utils.dpToPx
 import io.legado.app.utils.spToPx
+import io.legado.app.utils.textHeight
+import io.legado.app.utils.toStringArray
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.max
@@ -95,7 +97,7 @@ class Shelf3DView @JvmOverloads constructor(
     private val pitchAngle = Math.toRadians(9.0).toFloat()
     private val centerYaw = Math.toRadians(14.0).toFloat()
 
-    private val dark = context.isDarkTheme
+    private val dark = ColorUtils.calculateLuminance(context.backgroundColor) < 0.5
     private val accent = context.accentColor
     private val inkColor = if (dark) 0xFFECE6DA.toInt() else 0xFF2B2722.toInt()
     private val subColor = if (dark) 0xFF9A9286.toInt() else 0xFF7A7166.toInt()
@@ -511,50 +513,71 @@ class Shelf3DView @JvmOverloads constructor(
         return out
     }
 
-    /** 没有封面或加载失败时生成带书名的封面 */
-    @Suppress("DEPRECATION")
+    /**
+     * 没有书源封面或加载失败时，使用原有默认封面（BookCover.defaultDrawable，含用户配置），
+     * 书名与作者的竖排方式与 CoverImageView 一致
+     */
     private fun generateCover(item: Item): Bitmap {
         val w = coverW
         val h = coverH
         val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val c = Canvas(out)
-        val base = Color.HSVToColor(floatArrayOf(hueOf(item), 0.30f, if (dark) 0.40f else 0.62f))
-        val p = Paint(Paint.ANTI_ALIAS_FLAG)
-        p.shader = LinearGradient(
-            0f, 0f, w.toFloat(), h.toFloat(),
-            ColorUtils.blendARGB(base, Color.WHITE, 0.12f),
-            ColorUtils.blendARGB(base, Color.BLACK, 0.18f), Shader.TileMode.CLAMP
-        )
-        c.drawRect(0f, 0f, w.toFloat(), h.toFloat(), p)
-        val inset = w * 0.07f
-        val frame = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            style = Paint.Style.STROKE
-            strokeWidth = max(1f, w * 0.006f)
-            color = 0x66FFFFFF
-        }
-        c.drawRect(RectF(inset, inset, w - inset, h - inset), frame)
-        val tp = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
-            typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
-            textSize = w * 0.12f
-            color = Color.WHITE
-        }
-        val layout = StaticLayout(
-            item.name, tp, (w - inset * 3).toInt(), Layout.Alignment.ALIGN_CENTER, 1.1f, 0f, false
-        )
-        c.save()
-        c.translate(inset * 1.5f, h * 0.28f)
-        c.clipRect(0f, 0f, w.toFloat(), h * 0.5f)
-        layout.draw(c)
-        c.restore()
-        if (item.author.isNotBlank()) {
-            tp.typeface = Typeface.DEFAULT
-            tp.textSize = w * 0.06f
-            tp.alpha = 200
-            tp.textAlign = Paint.Align.CENTER
-            val a = TextUtils.ellipsize(item.author, tp, w - inset * 3, TextUtils.TruncateAt.END)
-            c.drawText(a, 0, a.length, w / 2f, h - inset * 2.2f, tp)
-        }
+        val d = BookCover.defaultDrawable
+        val dw = d.intrinsicWidth.takeIf { it > 0 } ?: w
+        val dh = d.intrinsicHeight.takeIf { it > 0 } ?: h
+        val scale = max(w / dw.toFloat(), h / dh.toFloat())
+        val sw = (dw * scale).toInt()
+        val sh = (dh * scale).toInt()
+        val left = (w - sw) / 2
+        val top = (h - sh) / 2
+        val oldBounds = Rect(d.bounds)
+        d.setBounds(left, top, left + sw, top + sh)
+        d.draw(c)
+        d.bounds = oldBounds
+        drawDefaultName(c, item, w.toFloat(), h.toFloat())
+        spineColors[item.key] = Bitmap.createScaledBitmap(out, 1, 1, true).getPixel(0, 0)
         return out
+    }
+
+    private fun drawDefaultName(canvas: Canvas, item: Item, vw: Float, vh: Float) {
+        if (!BookCover.drawBookName) return
+        val p = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+            typeface = Typeface.DEFAULT_BOLD
+            textAlign = Paint.Align.CENTER
+        }
+        fun stroke(ch: String, x: Float, y: Float) {
+            p.color = Color.WHITE
+            p.style = Paint.Style.STROKE
+            canvas.drawText(ch, x, y, p)
+            p.color = accent
+            p.style = Paint.Style.FILL
+            canvas.drawText(ch, x, y, p)
+        }
+        var x = vw * 0.2f
+        var y = vh * 0.2f
+        val name = item.name.replace(AppPattern.bdRegex, "").trim().toStringArray()
+        p.textSize = vw / 6
+        p.strokeWidth = p.textSize / 5
+        name.forEachIndexed { index, ch ->
+            stroke(ch, x, y)
+            y += p.textHeight
+            if (y > vh * 0.8f) {
+                x += p.textSize
+                p.textSize = vw / 10
+                y = (vh - (name.size - index - 1) * p.textHeight) / 2
+            }
+        }
+        if (!BookCover.drawBookAuthor) return
+        val author = item.author.replace(AppPattern.bdRegex, "").trim().toStringArray()
+        p.textSize = vw / 10
+        p.strokeWidth = p.textSize / 5
+        x = vw * 0.8f
+        y = max(vh * 0.95f - author.size * p.textHeight, vh * 0.3f)
+        for (ch in author) {
+            stroke(ch, x, y)
+            y += p.textHeight
+            if (y > vh * 0.95f) break
+        }
     }
 
     private fun spineColorOf(item: Item): Int {

@@ -5,7 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    android:padding="16dp">
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="16dp">
 
     <TextView
         android:id="@+id/tv_title"
@@ -14,6 +17,7 @@
         android:layout_margin="5dp"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:fontFamily="serif"
         android:text="@string/custom_page_key" />
 
     <io.legado.app.ui.widget.text.TextInputLayout

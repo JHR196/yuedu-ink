@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 纸墨设计系统：全局色板（夜间见 values-night/colors_ink.xml） -->
+<resources>
+    <color name="ink_paper">#F6F2EA</color>
+    <color name="ink_paper_deep">#ECE5D8</color>
+    <color name="ink_card">#FFFDF8</color>
+    <color name="ink_text">#2B2722</color>
+    <color name="ink_text_sub">#7A7166</color>
+    <color name="ink_text_faint">#A39A8E</color>
+    <color name="ink_line">#1F2B2722</color>
+    <color name="ink_accent">#B5452F</color>
+    <color name="ink_accent_soft">#1AB5452F</color>
+    <color name="ink_gold">#B89A5E</color>
+    <color name="ink_scrim">#66000000</color>
+    <!-- 主题默认值（用户未自定义时） -->
+    <color name="ink_theme_primary">#F3EEE4</color>
+    <color name="ink_theme_accent">#B5452F</color>
+    <color name="ink_theme_background">#F6F2EA</color>
+    <color name="ink_theme_bottom">#EDE6D9</color>
+    <color name="ink_theme_night_primary">#1F1D1A</color>
+    <color name="ink_theme_night_accent">#D9785B</color>
+    <color name="ink_theme_night_background">#161513</color>
+    <color name="ink_theme_night_bottom">#1F1D1A</color>
+</resources>

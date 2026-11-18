@@ -5,15 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp">
+    android:paddingLeft="14dp"
+    android:paddingTop="8dp"
+    android:paddingRight="14dp"
+    android:paddingBottom="8dp">
 
     <TextView
         android:id="@+id/tv_book_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="6dp"
-        android:textColor="@color/primaryText"
+        android:fontFamily="serif"
+        android:textColor="@color/ink_text"
+        android:textSize="16sp"
+        android:textStyle="bold"
         android:singleLine="true"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -28,7 +33,8 @@
         android:padding="6dp"
         android:singleLine="true"
         android:text="@string/reading_time_tag"
-        android:textColor="@color/secondaryText"
+        android:textColor="@color/ink_text_sub"
+        android:textSize="12sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_book_name" />
 
@@ -38,7 +44,8 @@
         android:layout_height="wrap_content"
         android:padding="6dp"
         android:singleLine="true"
-        android:textColor="@color/secondaryText"
+        android:textColor="@color/ink_text_sub"
+        android:textSize="12sp"
         app:layout_constraintLeft_toRightOf="@+id/tv_reading_time_tag"
         app:layout_constraintTop_toBottomOf="@id/tv_book_name"
         app:layout_constraintRight_toLeftOf="@+id/tv_remove"
@@ -51,7 +58,8 @@
         android:padding="6dp"
         android:singleLine="true"
         android:text="@string/last_read_time_tag"
-        android:textColor="@color/secondaryText"
+        android:textColor="@color/ink_text_sub"
+        android:textSize="12sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_reading_time_tag" />
 
@@ -61,7 +69,8 @@
         android:layout_height="wrap_content"
         android:padding="6dp"
         android:singleLine="true"
-        android:textColor="@color/secondaryText"
+        android:textColor="@color/ink_text_sub"
+        android:textSize="12sp"
         app:layout_constraintLeft_toRightOf="@+id/tv_last_read_time_tag"
         app:layout_constraintTop_toBottomOf="@id/tv_reading_time_tag"
         app:layout_constraintRight_toLeftOf="@+id/tv_remove"
@@ -73,7 +82,7 @@
         android:layout_height="wrap_content"
         android:padding="6dp"
         android:text="@string/clear"
-        android:textColor="@color/primaryText"
+        android:textColor="@color/ink_accent"
         android:background="?attr/selectableItemBackground"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"

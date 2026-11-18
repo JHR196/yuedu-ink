@@ -39,6 +39,7 @@ import io.legado.app.utils.ColorUtils
 import io.legado.app.utils.ConstraintModify
 import io.legado.app.utils.activity
 import io.legado.app.utils.applyNavigationBarPadding
+import io.legado.app.utils.applyTint
 import io.legado.app.utils.dpToPx
 import io.legado.app.utils.getPrefBoolean
 import io.legado.app.utils.gone
@@ -170,7 +171,7 @@ class ReadMenu @JvmOverloads constructor(
         if (immersiveMenu) {
             val lightTextColor = ColorUtils.withAlpha(ColorUtils.lightenColor(textColor), 0.75f)
             titleBar.setTextColor(textColor)
-            titleBar.setBackgroundColor(bgColor)
+            titleBar.setBackgroundColor(ColorUtils.adjustAlpha(bgColor, 0.94f))
             titleBar.setColorFilter(textColor)
             tvChapterName.setTextColor(lightTextColor)
             tvChapterUrl.setTextColor(lightTextColor)
@@ -178,7 +179,7 @@ class ReadMenu @JvmOverloads constructor(
             val bgColor = context.primaryColor
             val textColor = context.primaryTextColor
             titleBar.setTextColor(textColor)
-            titleBar.setBackgroundColor(bgColor)
+            titleBar.setBackgroundColor(ColorUtils.adjustAlpha(bgColor, 0.94f))
             titleBar.setColorFilter(textColor)
             tvChapterName.setTextColor(textColor)
             tvChapterUrl.setTextColor(textColor)
@@ -191,7 +192,7 @@ class ReadMenu @JvmOverloads constructor(
             titleBar.setBackgroundResource(R.drawable.bg_eink_border_bottom)
             llBottomBg.setBackgroundResource(R.drawable.bg_eink_border_top)
         } else {
-            llBottomBg.setBackgroundColor(bgColor)
+            llBottomBg.setBackgroundColor(ColorUtils.adjustAlpha(bgColor, 0.94f))
         }
         fabSearch.backgroundTintList = bottomBackgroundList
         fabSearch.setColorFilter(textColor)
@@ -201,6 +202,7 @@ class ReadMenu @JvmOverloads constructor(
         fabReplaceRule.setColorFilter(textColor)
         fabNightTheme.backgroundTintList = bottomBackgroundList
         fabNightTheme.setColorFilter(textColor)
+        seekReadPage.applyTint(context.accentColor)
         tvPre.setTextColor(textColor)
         tvNext.setTextColor(textColor)
         ivCatalog.setColorFilter(textColor, PorterDuff.Mode.SRC_IN)

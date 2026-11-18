@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="5dp"
+    android:paddingHorizontal="20dp"
+    android:paddingVertical="10dp"
     android:background="?attr/selectableItemBackground"
     tools:ignore="UseCompoundDrawables">
 
@@ -19,6 +20,8 @@
         android:id="@+id/text_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:gravity="center_vertical" />
+        android:gravity="center_vertical"
+        android:layout_marginStart="12dp"
+        android:textColor="@color/ink_text" />
 
 </LinearLayout>

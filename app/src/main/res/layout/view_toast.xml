@@ -9,8 +9,9 @@
         android:id="@+id/cv_toast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/ink_card"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="1dp"
         app:cardUseCompatPadding="true">
 
         <TextView
@@ -20,7 +21,9 @@
             android:gravity="center_horizontal"
             android:paddingHorizontal="16dp"
             android:paddingTop="8dp"
-            android:paddingBottom="10dp"/>
+            android:paddingBottom="10dp"
+            android:textColor="@color/ink_text"
+            android:textSize="14sp" />
 
     </androidx.cardview.widget.CardView>
 

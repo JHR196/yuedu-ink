@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="12dp">
+    android:paddingHorizontal="20dp"
+    android:paddingVertical="12dp">
 
     <TextView
         android:id="@+id/tv_name"
@@ -12,7 +13,8 @@
         android:layout_height="wrap_content"
         android:padding="3dp"
         android:textSize="16sp"
-        android:textColor="@color/primaryText"
+        android:fontFamily="serif"
+        android:textColor="@color/ink_text"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toLeftOf="@id/iv_edit"
@@ -34,8 +36,9 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="3dp"
-        android:textSize="12sp"
-        android:textColor="@color/secondaryText"
+        android:fontFamily="monospace"
+        android:textSize="11sp"
+        android:textColor="@color/ink_text_faint"
         android:ellipsize="middle"
         android:singleLine="true"
         app:layout_constraintTop_toBottomOf="@+id/tv_name"

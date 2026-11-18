@@ -4,7 +4,9 @@ import android.view.ViewGroup
 import io.legado.app.base.adapter.ItemViewHolder
 import io.legado.app.base.adapter.RecyclerAdapter
 import io.legado.app.data.entities.SearchKeyword
+import io.legado.app.R
 import io.legado.app.databinding.ItemFilletTextBinding
+import io.legado.app.utils.getCompatColor
 import io.legado.app.ui.widget.anima.explosion_field.ExplosionField
 import splitties.views.onLongClick
 
@@ -29,6 +31,9 @@ class HistoryKeyAdapter(activity: SearchActivity, val callBack: CallBack) :
     ) {
         binding.run {
             textView.text = item.word
+            textView.setBackgroundResource(R.drawable.rd_bg_chip)
+            textView.setTextColor(context.getCompatColor(R.color.ink_text))
+            textView.textSize = 13f
         }
     }
 

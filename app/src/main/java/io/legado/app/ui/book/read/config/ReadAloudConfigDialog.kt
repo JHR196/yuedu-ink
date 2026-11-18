@@ -47,7 +47,7 @@ class ReadAloudConfigDialog : BasePrefDialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         val view = LinearLayout(requireContext())
-        view.setBackgroundColor(requireContext().backgroundColor)
+        view.setRdSheetBackground(requireContext().backgroundColor)
         view.id = R.id.tag1
         container?.addView(view)
         return view

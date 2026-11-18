@@ -1,32 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp"
-    android:background="?android:attr/selectableItemBackground">
+    android:background="?android:attr/selectableItemBackground"
+    android:orientation="vertical"
+    android:paddingLeft="20dp"
+    android:paddingTop="14dp"
+    android:paddingRight="20dp"
+    android:paddingBottom="14dp">
 
     <TextView
         android:id="@+id/tv_chapter_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:singleLine="true" />
+        android:fontFamily="serif"
+        android:singleLine="true"
+        android:textColor="@color/ink_text"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tv_book_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:textSize="12sp"
-        android:singleLine="true" />
+        android:layout_marginTop="6dp"
+        android:singleLine="true"
+        android:textColor="@color/ink_accent"
+        android:textSize="13sp" />
 
     <TextView
         android:id="@+id/tv_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="4dp"
-        android:textSize="12sp"
-        android:singleLine="true" />
+        android:layout_marginTop="4dp"
+        android:singleLine="true"
+        android:textColor="@color/ink_text_sub"
+        android:textSize="13sp" />
 
 </LinearLayout>

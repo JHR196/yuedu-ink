@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:singleLine="true"
         android:text="seek"
-        android:textColor="@color/primaryText"
+        android:textColor="@color/ink_text_sub"
+        android:textSize="13sp"
         tools:ignore="HardcodedText" />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -47,8 +48,10 @@
         android:layout_height="wrap_content"
         android:gravity="right"
         android:singleLine="true"
+        android:fontFamily="monospace"
         android:text="0"
-        android:textColor="@color/primaryText"
+        android:textColor="@color/ink_accent"
+        android:textSize="12sp"
         tools:ignore="HardcodedText,RtlHardcoded" />
 
 </LinearLayout>

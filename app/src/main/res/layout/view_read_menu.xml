@@ -219,6 +219,11 @@
             android:background="@color/background_menu"
             android:importantForAccessibility="no"
             android:orientation="vertical">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@color/ink_line"
+                android:importantForAccessibility="no" />
             <!--章节设置-->
             <LinearLayout
                 android:layout_width="match_parent"
@@ -234,17 +239,20 @@
                     android:id="@+id/tv_pre"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:background="@drawable/rd2_bg_pill_outline"
                     android:clickable="true"
                     android:enabled="false"
                     android:focusable="true"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
+                    android:paddingLeft="14dp"
+                    android:paddingRight="14dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
                     android:text="@string/previous_chapter"
                     android:textColor="@color/primaryText"
-                    android:textSize="14sp"
+                    android:textSize="12sp"
                     tools:ignore="TouchTargetSizeCheck" />
 
                 <io.legado.app.lib.theme.view.ThemeSeekBar
@@ -258,17 +266,20 @@
                     android:id="@+id/tv_next"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:background="@drawable/rd2_bg_pill_outline"
                     android:clickable="true"
                     android:enabled="false"
                     android:focusable="true"
-                    android:paddingTop="10dp"
-                    android:paddingBottom="10dp"
+                    android:paddingLeft="14dp"
+                    android:paddingRight="14dp"
+                    android:paddingTop="6dp"
+                    android:paddingBottom="6dp"
                     android:text="@string/next_chapter"
                     android:textColor="@color/primaryText"
-                    android:textSize="14sp"
+                    android:textSize="12sp"
                     tools:ignore="TouchTargetSizeCheck" />
             </LinearLayout>
 
@@ -279,187 +290,141 @@
                 android:importantForAccessibility="no"
                 android:orientation="horizontal">
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:importantForAccessibility="no" />
-
-                <!--目录按钮-->
                 <LinearLayout
                     android:id="@+id/ll_catalog"
-                    android:layout_width="60dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:contentDescription="@string/chapter_list"
                     android:focusable="true"
+                    android:gravity="center_horizontal"
                     android:orientation="vertical"
-                    android:paddingBottom="7dp"
-                    tools:ignore="VisualLintBounds">
+                    android:paddingTop="6dp"
+                    android:paddingBottom="8dp">
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/iv_catalog"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:adjustViewBounds="true"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:contentDescription="@string/chapter_list"
-                        android:maxHeight="20dp"
                         android:src="@drawable/ic_toc"
-                        app:tint="@color/primaryText"
-                        tools:ignore="NestedWeights" />
+                        app:tint="@color/primaryText" />
 
                     <TextView
                         android:id="@+id/tv_catalog"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
                         android:layout_marginTop="3dp"
                         android:ellipsize="middle"
                         android:singleLine="true"
                         android:text="@string/chapter_list"
                         android:textColor="@color/primaryText"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                 </LinearLayout>
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    android:importantForAccessibility="no" />
-
-                <!--调节按钮-->
                 <LinearLayout
                     android:id="@+id/ll_read_aloud"
-                    android:layout_width="60dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:contentDescription="@string/read_aloud"
                     android:focusable="true"
+                    android:gravity="center_horizontal"
                     android:orientation="vertical"
-                    android:paddingBottom="7dp"
-                    tools:ignore="VisualLintBounds">
+                    android:paddingTop="6dp"
+                    android:paddingBottom="8dp">
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/iv_read_aloud"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:adjustViewBounds="true"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:contentDescription="@string/read_aloud"
-                        android:maxHeight="20dp"
                         android:src="@drawable/ic_read_aloud"
-                        app:tint="@color/primaryText"
-                        tools:ignore="NestedWeights" />
+                        app:tint="@color/primaryText" />
 
                     <TextView
                         android:id="@+id/tv_read_aloud"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
                         android:layout_marginTop="3dp"
                         android:ellipsize="middle"
                         android:singleLine="true"
                         android:text="@string/read_aloud"
                         android:textColor="@color/primaryText"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                 </LinearLayout>
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    android:importantForAccessibility="no" />
-
-                <!--界面按钮-->
                 <LinearLayout
                     android:id="@+id/ll_font"
-                    android:layout_width="60dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:contentDescription="@string/interface_setting"
                     android:focusable="true"
+                    android:gravity="center_horizontal"
                     android:orientation="vertical"
-                    android:paddingBottom="7dp"
-                    tools:ignore="VisualLintBounds">
+                    android:paddingTop="6dp"
+                    android:paddingBottom="8dp">
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/iv_font"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:adjustViewBounds="true"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:contentDescription="@string/interface_setting"
-                        android:maxHeight="20dp"
                         android:src="@drawable/ic_interface_setting"
-                        app:tint="@color/primaryText"
-                        tools:ignore="NestedWeights" />
+                        app:tint="@color/primaryText" />
 
                     <TextView
                         android:id="@+id/tv_font"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
                         android:layout_marginTop="3dp"
                         android:ellipsize="middle"
                         android:singleLine="true"
                         android:text="@string/interface_setting"
                         android:textColor="@color/primaryText"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                 </LinearLayout>
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    android:importantForAccessibility="no" />
-
-                <!--设置按钮-->
                 <LinearLayout
                     android:id="@+id/ll_setting"
-                    android:layout_width="60dp"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:contentDescription="@string/setting"
                     android:focusable="true"
+                    android:gravity="center_horizontal"
                     android:orientation="vertical"
-                    android:paddingBottom="7dp"
-                    tools:ignore="VisualLintBounds">
+                    android:paddingTop="6dp"
+                    android:paddingBottom="8dp">
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/iv_setting"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:adjustViewBounds="true"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:contentDescription="@string/setting"
-                        android:maxHeight="20dp"
                         android:src="@drawable/ic_settings"
-                        app:tint="@color/primaryText"
-                        tools:ignore="NestedWeights" />
+                        app:tint="@color/primaryText" />
 
                     <TextView
                         android:id="@+id/tv_setting"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
                         android:layout_marginTop="3dp"
                         android:ellipsize="middle"
                         android:singleLine="true"
                         android:text="@string/setting"
                         android:textColor="@color/primaryText"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
                 </LinearLayout>
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:importantForAccessibility="no" />
 
             </LinearLayout>
         </LinearLayout>

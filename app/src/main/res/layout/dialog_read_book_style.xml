@@ -7,6 +7,15 @@
     android:layout_height="wrap_content"
     android:background="@color/background"
     android:orientation="vertical">
+    <View
+        android:layout_width="36dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/rd2_handle"
+        android:importantForAccessibility="no" />
+
 
     <LinearLayout
         android:layout_width="match_parent"

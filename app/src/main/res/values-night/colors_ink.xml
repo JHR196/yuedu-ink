@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ink_paper">#161513</color>
+    <color name="ink_paper_deep">#1F1D1A</color>
+    <color name="ink_card">#23211E</color>
+    <color name="ink_text">#ECE6DA</color>
+    <color name="ink_text_sub">#9A9286</color>
+    <color name="ink_text_faint">#6E675E</color>
+    <color name="ink_line">#1FECE6DA</color>
+    <color name="ink_accent">#D9785B</color>
+    <color name="ink_accent_soft">#26D9785B</color>
+    <color name="ink_gold">#9C845A</color>
+    <color name="ink_scrim">#99000000</color>
+</resources>

@@ -134,6 +134,12 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
                     tvChapterName.setTextColor(context.getCompatColor(R.color.primaryText))
                 }
                 tvChapterName.text = getDisplayTitle(item)
+                tvBkNo.text = if (item.isVolume) "" else String.format("%03d", item.index + 1)
+                tvChapterName.typeface = if (item.isVolume) {
+                    android.graphics.Typeface.create("serif", android.graphics.Typeface.BOLD)
+                } else {
+                    android.graphics.Typeface.DEFAULT
+                }
                 if (item.isVolume) {
                     //卷名，如第一卷 突出显示
                     tvChapterItem.setBackgroundColor(context.getCompatColor(R.color.btn_bg_press))
@@ -165,10 +171,10 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
                     ivLocked.gone()
                 }
 
-                upHasCache(binding, isDur, cached)
+                upHasCache(binding, isDur, cached && !item.isVolume)
             } else {
                 tvChapterName.text = getDisplayTitle(item)
-                upHasCache(binding, isDur, cached)
+                upHasCache(binding, isDur, cached && !item.isVolume)
             }
         }
     }
@@ -189,12 +195,8 @@ class ChapterListAdapter(context: Context, val callback: Callback) :
 
     private fun upHasCache(binding: ItemChapterListBinding, isDur: Boolean, cached: Boolean) =
         binding.apply {
-            ivChecked.setImageResource(R.drawable.ic_outline_cloud_24)
-            ivChecked.visible(!cached)
-            if (isDur) {
-                ivChecked.setImageResource(R.drawable.ic_check)
-                ivChecked.visible()
-            }
+            ivChecked.visible(cached)
+            bkCurBar.visible(isDur)
         }
 
     interface Callback {

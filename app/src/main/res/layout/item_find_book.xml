@@ -13,20 +13,23 @@
         android:id="@+id/ll_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="10dp"
+        android:paddingLeft="14dp"
         android:paddingRight="10dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp"
-        android:background="@drawable/bg_find_book_group"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:background="@drawable/shf_find_group_bg"
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
         <TextView
             android:id="@+id/tv_name"
+        android:fontFamily="serif"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@color/primaryText"
+            android:textColor="@color/ink_text"
+            android:textSize="15sp"
+            android:textStyle="bold"
             tools:text="起点中文" />
 
         <io.legado.app.ui.widget.anima.RotateLoading
@@ -44,7 +47,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@drawable/ic_arrow_right"
-            app:tint="@color/secondaryText"
+            app:tint="@color/ink_text_sub"
             tools:ignore="ContentDescription" />
 
     </LinearLayout>

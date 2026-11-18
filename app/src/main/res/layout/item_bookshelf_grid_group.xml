@@ -11,6 +11,7 @@
 
 
     <LinearLayout
+        android:id="@+id/ink_auto_item_bookshelf_grid_group_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -23,11 +24,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <View
+        android:id="@+id/ink_auto_item_bookshelf_grid_group_2"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="-4dp"
+                android:layout_marginBottom="4dp"
+                android:background="@drawable/shf_group_back"
+                app:layout_constraintBottom_toBottomOf="@+id/iv_cover"
+                app:layout_constraintLeft_toLeftOf="@+id/iv_cover"
+                app:layout_constraintRight_toRightOf="@+id/iv_cover"
+                app:layout_constraintTop_toTopOf="@+id/iv_cover" />
+
             <io.legado.app.ui.widget.image.CoverImageView
                 android:id="@+id/iv_cover"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
+                android:elevation="2dp"
+                android:outlineProvider="bounds"
                 android:scaleType="centerCrop"
                 android:src="@drawable/image_cover_default"
                 android:transitionName="img_cover"
@@ -35,8 +51,22 @@
                 tools:ignore="UnusedAttribute,ImageContrastCheck"
                 tools:layout_editor_absoluteX="8dp" />
 
+            <View
+        android:id="@+id/ink_auto_item_bookshelf_grid_group_3"
+                android:layout_width="3dp"
+                android:layout_height="0dp"
+                android:elevation="3dp"
+                android:layout_marginLeft="8dp"
+                android:background="@drawable/shf_spine"
+                app:layout_constraintBottom_toBottomOf="@+id/iv_cover"
+                app:layout_constraintLeft_toLeftOf="@+id/iv_cover"
+                app:layout_constraintTop_toTopOf="@+id/iv_cover" />
+
             <io.legado.app.ui.widget.text.BadgeView
                 android:id="@+id/bv_unread"
+                android:minWidth="14dp"
+                android:minHeight="14dp"
+                android:textSize="9sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
@@ -68,8 +98,10 @@
             android:includeFontPadding="false"
             android:lines="2"
             android:text="@string/book_name"
-            android:textColor="@color/primaryText"
-            android:textSize="12sp"
+            android:fontFamily="serif"
+            android:textStyle="bold"
+            android:textColor="@color/ink_text"
+            android:textSize="13sp"
             tools:ignore="RtlHardcoded,RtlSymmetry" />
 
     </LinearLayout>

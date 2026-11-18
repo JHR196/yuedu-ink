@@ -5,7 +5,9 @@ import android.view.ViewGroup
 import io.legado.app.base.adapter.ItemViewHolder
 import io.legado.app.base.adapter.RecyclerAdapter
 import io.legado.app.data.entities.Book
+import io.legado.app.R
 import io.legado.app.databinding.ItemFilletTextBinding
+import io.legado.app.utils.getCompatColor
 
 
 class BookAdapter(context: Context, val callBack: CallBack) :
@@ -27,6 +29,9 @@ class BookAdapter(context: Context, val callBack: CallBack) :
     ) {
         binding.run {
             textView.text = item.name
+            textView.setBackgroundResource(R.drawable.rd_bg_chip)
+            textView.setTextColor(context.getCompatColor(R.color.ink_text))
+            textView.textSize = 13f
         }
     }
 

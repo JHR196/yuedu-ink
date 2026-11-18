@@ -1,6 +1,7 @@
 package io.legado.app.ui.book.search
 
 import android.content.Context
+import android.graphics.Typeface
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -11,6 +12,7 @@ import io.legado.app.base.adapter.ItemViewHolder
 import io.legado.app.data.entities.SearchBook
 import io.legado.app.databinding.ItemSearchBinding
 import io.legado.app.help.config.AppConfig
+import io.legado.app.utils.getCompatColor
 import io.legado.app.utils.gone
 import io.legado.app.utils.visible
 
@@ -82,12 +84,12 @@ class SearchAdapter(context: Context, val callBack: CallBack) :
     private fun bind(binding: ItemSearchBinding, searchBook: SearchBook) {
         binding.run {
             tvName.text = searchBook.name
-            tvAuthor.text = context.getString(R.string.author_show, searchBook.author)
+            styleBadge(binding)
+            upAuthorKind(binding, searchBook)
             ivInBookshelf.isVisible = callBack.isInBookshelf(searchBook)
             bvOriginCount.setBadgeCount(searchBook.origins.size)
             upLasted(binding, searchBook.latestChapterTitle)
             tvIntroduce.text = searchBook.trimIntro(context)
-            upKind(binding, searchBook.getKindList())
             ivCover.load(
                 searchBook.coverUrl,
                 searchBook.name,
@@ -105,7 +107,7 @@ class SearchAdapter(context: Context, val callBack: CallBack) :
                     "origins" -> bvOriginCount.setBadgeCount(searchBook.origins.size)
                     "last" -> upLasted(binding, searchBook.latestChapterTitle)
                     "intro" -> tvIntroduce.text = searchBook.trimIntro(context)
-                    "kind" -> upKind(binding, searchBook.getKindList())
+                    "kind" -> upAuthorKind(binding, searchBook)
                     "isInBookshelf" -> ivInBookshelf.isVisible = callBack.isInBookshelf(searchBook)
                     "cover" -> ivCover.load(
                         searchBook.coverUrl,
@@ -131,13 +133,17 @@ class SearchAdapter(context: Context, val callBack: CallBack) :
         }
     }
 
-    private fun upKind(binding: ItemSearchBinding, kinds: List<String>) = binding.run {
-        if (kinds.isEmpty()) {
-            llKind.gone()
-        } else {
-            llKind.visible()
-            llKind.setLabels(kinds)
-        }
+    private fun styleBadge(binding: ItemSearchBinding) = binding.bvOriginCount.run {
+        background = null
+        typeface = Typeface.MONOSPACE
+        setTextColor(context.getCompatColor(R.color.ink_accent))
+    }
+
+    private fun upAuthorKind(binding: ItemSearchBinding, searchBook: SearchBook) = binding.run {
+        val kinds = searchBook.getKindList()
+        val author = context.getString(R.string.author_show, searchBook.author)
+        tvAuthor.text = if (kinds.isEmpty()) author else author + " · " + kinds.joinToString(" ")
+        llKind.gone()
     }
 
     interface CallBack {
