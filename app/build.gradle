@@ -92,7 +92,7 @@ android {
             if (project.hasProperty("RELEASE_STORE_FILE")) {
                 signingConfig signingConfigs.myConfig
             }
-            manifestPlaceholders.put("app_name", project.hasProperty('shelf3d') ? "阅读·立体书架" : "@string/app_name")
+            manifestPlaceholders.put("app_name", "@string/app_name")
 
             applicationIdSuffix project.hasProperty('shelf3d') ? '.shelf3d' : '.debug'
             versionNameSuffix project.hasProperty('shelf3d') ? 'shelf3d' : 'debug'

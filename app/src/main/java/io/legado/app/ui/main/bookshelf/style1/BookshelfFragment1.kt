@@ -95,6 +95,7 @@ class BookshelfFragment1() : BaseBookshelfFragment(R.layout.fragment_bookshelf1)
                 bookGroups.addAll(data)
                 adapter.notifyDataSetChanged()
                 selectLastTab()
+                fragmentMap.values.forEach { it.upShelfLabel() }
                 for (i in 0 until adapter.count) {
                     tabLayout.getTabAt(i)?.view?.setOnLongClickListener {
                         showDialogFragment(GroupEditDialog(bookGroups[i]))
@@ -107,6 +108,27 @@ class BookshelfFragment1() : BaseBookshelfFragment(R.layout.fragment_bookshelf1)
 
     override fun upSort() {
         adapter.notifyDataSetChanged()
+    }
+
+    /** 立体书架「书柜」：本层分组名与上下层分组名 */
+    fun shelfNeighbors(groupId: Long): Triple<String?, String?, String?> {
+        val i = bookGroups.indexOfFirst { it.groupId == groupId }
+        if (i < 0) return Triple(null, null, null)
+        return Triple(
+            bookGroups[i].groupName,
+            bookGroups.getOrNull(i - 1)?.groupName,
+            bookGroups.getOrNull(i + 1)?.groupName
+        )
+    }
+
+    /** 立体书架上下拖动换层：切到相邻分组并播放入场 */
+    fun switchShelfGroup(fromGroupId: Long, delta: Int): Boolean {
+        val i = bookGroups.indexOfFirst { it.groupId == fromGroupId }
+        val t = i + delta
+        if (i < 0 || t !in bookGroups.indices) return false
+        binding.viewPagerBookshelf.setCurrentItem(t, false)
+        fragmentMap[bookGroups[t].groupId]?.playShelfEnter(delta)
+        return true
     }
 
     private fun selectLastTab() {

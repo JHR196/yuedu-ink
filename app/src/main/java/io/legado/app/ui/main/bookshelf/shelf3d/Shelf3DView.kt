@@ -36,6 +36,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import io.legado.app.constant.AppPattern
+import io.legado.app.data.entities.BookGroup
 import io.legado.app.help.config.AppConfig
 import io.legado.app.help.glide.ImageLoader
 import io.legado.app.help.glide.OkHttpModelLoader
@@ -81,6 +82,9 @@ class Shelf3DView @JvmOverloads constructor(
     interface Callback {
         fun onOpen(item: Any)
         fun onLongPress(item: Any)
+
+        /** 上下拖动换到相邻分组；delta=+1 下一层，-1 上一层；返回是否成功 */
+        fun onSwitchGroup(delta: Int): Boolean = false
     }
 
     var callback: Callback? = null
@@ -138,6 +142,85 @@ class Shelf3DView @JvmOverloads constructor(
     private var rulerX0 = 0f
     private var rulerStep = 0f
     private var scrubbing = false
+
+    // 书柜：当前层铭牌与上下层
+    private var shelfLabel: String? = null
+    private var prevGroup: String? = null
+    private var nextGroup: String? = null
+    private var vDragging = false
+    private var pullY = 0f
+    private var enterOffset = 0f
+    private var enterAlpha = 1f
+    private var pullAnimator: ValueAnimator? = null
+    private val platePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val plateRect = RectF()
+    private val plateText = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+        typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
+        textSize = 10f.spToPx()
+        letterSpacing = 0.08f
+        color = if (dark) 0xFFF3E7CC.toInt() else 0xFF3A2E1C.toInt()
+        textAlign = Paint.Align.CENTER
+    }
+    private val hintPaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+        textSize = 12f.spToPx()
+        color = subColor
+        textAlign = Paint.Align.CENTER
+    }
+
+    /** 设置本层铭牌文字与上下层分组名（无则为 null，不可换层） */
+    fun setGroupInfo(label: String?, prev: String?, next: String?) {
+        if (label == shelfLabel && prev == prevGroup && next == nextGroup) return
+        shelfLabel = label
+        prevGroup = prev
+        nextGroup = next
+        invalidate()
+    }
+
+    /** 换层后新层的入场：从拖动方向滑入并淡入 */
+    fun playEnter(delta: Int) {
+        if (lowMotion || height == 0) return
+        pullAnimator?.cancel()
+        val from = (if (delta > 0) 1 else -1) * height * 0.22f
+        pullAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 340
+            interpolator = DecelerateInterpolator(1.8f)
+            addUpdateListener {
+                val t = it.animatedValue as Float
+                enterOffset = from * (1 - t)
+                enterAlpha = 0.25f + 0.75f * t
+                invalidate()
+            }
+            start()
+        }
+    }
+
+    private val pullThreshold get() = 64f.dpToPx()
+
+    private fun releasePull(vy: Float) {
+        val delta = when {
+            pullY <= -pullThreshold || (vy < -1800 && pullY < 0) -> 1
+            pullY >= pullThreshold || (vy > 1800 && pullY > 0) -> -1
+            else -> 0
+        }
+        val target = if (delta > 0) nextGroup else if (delta < 0) prevGroup else null
+        if (target != null && callback?.onSwitchGroup(delta) == true) {
+            performHapticFeedback(HapticFeedbackConstants.CLOCK_TICK)
+            pullY = 0f
+            invalidate()
+            return
+        }
+        val start = pullY
+        pullAnimator?.cancel()
+        pullAnimator = ValueAnimator.ofFloat(1f, 0f).apply {
+            duration = 220
+            interpolator = DecelerateInterpolator()
+            addUpdateListener {
+                pullY = start * (it.animatedValue as Float)
+                invalidate()
+            }
+            start()
+        }
+    }
     private val plankPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val titlePaint = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
         typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
@@ -398,8 +481,20 @@ class Shelf3DView @JvmOverloads constructor(
         canvas.drawRect(0f, 0f, fw, fh, grainPaint)
         canvas.drawRect(0f, 0f, fw, fh, vignettePaint)
         canvas.drawRect(0f, fh - 90f.dpToPx(), fw, fh, blendPaint)
-        if (items.isEmpty() || bookW <= 0f) return
+        if (bookW <= 0f) return
+        val shift = pullY + enterOffset
+        val layered = enterAlpha < 0.999f
+        if (layered) canvas.saveLayerAlpha(0f, 0f, fw, fh, (enterAlpha * 255).toInt())
+        canvas.save()
+        canvas.translate(0f, shift)
         drawPlank(canvas, floorY)
+        drawPlate(canvas)
+        if (items.isEmpty()) {
+            canvas.restore()
+            if (layered) canvas.restore()
+            drawPullHint(canvas)
+            return
+        }
 
         val half = ((width / 2f - gap) / pitch).toInt() + 3
         val c = focus.roundToInt()
@@ -418,7 +513,67 @@ class Shelf3DView @JvmOverloads constructor(
         for (n in 0 until slotCount) drawShadow(canvas, slotCorners[n])
         for (n in 0 until slotCount) drawBook(canvas, slotIndex[n], slotCorners[n])
         drawInfo(canvas, floorY)
+        canvas.restore()
         drawRuler(canvas)
+        if (layered) canvas.restore()
+        drawPullHint(canvas)
+    }
+
+    /** 层板正面的铜色铭牌：分组名与册数，上下有可换层的小箭头 */
+    private fun drawPlate(canvas: Canvas) {
+        val label = shelfLabel ?: return
+        val cy = floorY + 1f.dpToPx() + plankFront / 2
+        val tw = plateText.measureText(label)
+        val hw = tw / 2 + 12f.dpToPx()
+        val hh = 9f.dpToPx()
+        plateRect.set(width / 2f - hw, cy - hh, width / 2f + hw, cy + hh)
+        platePaint.shader = LinearGradient(
+            0f, plateRect.top, 0f, plateRect.bottom,
+            if (dark) 0xFF9A8352.toInt() else 0xFFE6CF98.toInt(),
+            if (dark) 0xFF6A5533.toInt() else 0xFFB8955A.toInt(),
+            Shader.TileMode.CLAMP
+        )
+        canvas.drawRoundRect(plateRect, 3f.dpToPx(), 3f.dpToPx(), platePaint)
+        platePaint.shader = null
+        platePaint.style = Paint.Style.STROKE
+        platePaint.strokeWidth = 0.8f.dpToPx()
+        platePaint.color = if (dark) 0x66000000 else 0x553A2A10
+        canvas.drawRoundRect(plateRect, 3f.dpToPx(), 3f.dpToPx(), platePaint)
+        platePaint.style = Paint.Style.FILL
+        // 两颗铆钉
+        platePaint.color = if (dark) 0xFF4A3B24.toInt() else 0xFF8A6D3E.toInt()
+        canvas.drawCircle(plateRect.left + 5f.dpToPx(), cy, 1.3f.dpToPx(), platePaint)
+        canvas.drawCircle(plateRect.right - 5f.dpToPx(), cy, 1.3f.dpToPx(), platePaint)
+        canvas.drawText(label, width / 2f, cy + plateText.textSize * 0.36f, plateText)
+        // 可换层提示
+        linePaint.strokeWidth = 1.2f.dpToPx()
+        linePaint.color = faintColor
+        val a = 3.5f.dpToPx()
+        linePaint.color = if (dark) 0xCCE2C98F.toInt() else 0xCC6B5634.toInt()
+        // 左侧 ︿ 表示上面还有一层，右侧 ﹀ 表示下面还有一层
+        if (prevGroup != null) {
+            val x = plateRect.left - 9f.dpToPx()
+            canvas.drawLine(x - a, cy + a * 0.35f, x, cy - a * 0.35f, linePaint)
+            canvas.drawLine(x, cy - a * 0.35f, x + a, cy + a * 0.35f, linePaint)
+        }
+        if (nextGroup != null) {
+            val x = plateRect.right + 9f.dpToPx()
+            canvas.drawLine(x - a, cy - a * 0.35f, x, cy + a * 0.35f, linePaint)
+            canvas.drawLine(x, cy + a * 0.35f, x + a, cy - a * 0.35f, linePaint)
+        }
+    }
+
+    /** 拖动换层时的提示：松手前往哪一层 */
+    private fun drawPullHint(canvas: Canvas) {
+        if (abs(pullY) < 4f.dpToPx()) return
+        val up = pullY > 0
+        val name = (if (up) prevGroup else nextGroup) ?: return
+        val k = (abs(pullY) / pullThreshold).coerceIn(0f, 1f)
+        hintPaint.alpha = (k * 255).toInt()
+        hintPaint.color = ColorUtils.setAlphaComponent(if (k >= 1f) accent else subColor, (k * 255).toInt())
+        val text = if (k >= 1f) "松手前往「$name」" else (if (up) "下拉：上一层「$name」" else "上推：下一层「$name」")
+        val y = if (up) paddingTop + 28f.dpToPx() + pullY * 0.3f else height - paddingBottom - 70f.dpToPx() + pullY * 0.3f
+        canvas.drawText(text, width / 2f, y, hintPaint)
     }
 
     private val plankFront get() = 13f.dpToPx()
@@ -673,7 +828,56 @@ class Shelf3DView @JvmOverloads constructor(
      * 没有书源封面或加载失败时，使用原有默认封面（BookCover.defaultDrawable，含用户配置），
      * 书名与作者的竖排方式与 CoverImageView 一致
      */
+    /** 分组画成布面函套：布纹底、双道金框、竖排烫金分组名 */
+    private fun generateSlipcase(item: Item): Bitmap {
+        val w = coverW
+        val h = coverH
+        val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val c = Canvas(out)
+        val cloth = Color.HSVToColor(floatArrayOf(hueOf(item), 0.38f, if (dark) 0.30f else 0.40f))
+        c.drawColor(cloth)
+        val p = Paint(Paint.ANTI_ALIAS_FLAG)
+        p.strokeWidth = 1f
+        p.color = ColorUtils.setAlphaComponent(Color.BLACK, 26)
+        var y = 0f
+        while (y < h) { c.drawLine(0f, y, w.toFloat(), y, p); y += 3f }
+        p.color = ColorUtils.setAlphaComponent(Color.WHITE, 12)
+        var x = 0f
+        while (x < w) { c.drawLine(x, 0f, x, h.toFloat(), p); x += 3f }
+        val gold = 0xFFE2C98F.toInt()
+        p.style = Paint.Style.STROKE
+        p.color = gold
+        p.strokeWidth = w * 0.012f
+        val m1 = w * 0.07f
+        c.drawRect(m1, m1, w - m1, h - m1, p)
+        p.strokeWidth = w * 0.006f
+        val m2 = w * 0.1f
+        c.drawRect(m2, m2, w - m2, h - m2, p)
+        val tp = TextPaint(Paint.ANTI_ALIAS_FLAG).apply {
+            typeface = Typeface.create(Typeface.SERIF, Typeface.BOLD)
+            color = gold
+            textAlign = Paint.Align.CENTER
+        }
+        val chars = item.name.trim().take(8)
+        val n = max(1, chars.length)
+        tp.textSize = min(w * 0.2f, h * 0.62f / n)
+        val step = tp.textSize * 1.12f
+        var ty = h * 0.46f - step * (n - 1) / 2 + tp.textSize * 0.35f
+        for (ch in chars) {
+            c.drawText(ch.toString(), w / 2f, ty, tp)
+            ty += step
+        }
+        // 底部朱砂小印
+        val sz = w * 0.12f
+        p.style = Paint.Style.FILL
+        p.color = accent
+        c.drawRect(w / 2f - sz / 2, h - m2 - sz * 1.6f, w / 2f + sz / 2, h - m2 - sz * 0.6f, p)
+        spineColors[item.key] = ColorUtils.blendARGB(cloth, Color.BLACK, 0.15f)
+        return out
+    }
+
     private fun generateCover(item: Item): Bitmap {
+        if (item.data is BookGroup && item.cover.isNullOrBlank()) return generateSlipcase(item)
         val w = coverW
         val h = coverH
         val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
@@ -864,7 +1068,7 @@ class Shelf3DView @JvmOverloads constructor(
     override fun performClick(): Boolean = super.performClick()
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (items.isEmpty()) return super.onTouchEvent(event)
+        if (items.isEmpty() && prevGroup == null && nextGroup == null) return super.onTouchEvent(event)
         val vt = velocityTracker ?: VelocityTracker.obtain().also { velocityTracker = it }
         vt.addMovement(event)
         if (scrubbing && event.actionMasked != MotionEvent.ACTION_DOWN) {
@@ -886,6 +1090,7 @@ class Shelf3DView @JvmOverloads constructor(
                 lastX = event.x
                 dragging = false
                 longPressed = false
+                vDragging = false
                 parent?.requestDisallowInterceptTouchEvent(true)
                 scrubbing = inRuler(event.x, event.y)
                 if (scrubbing) {
@@ -903,13 +1108,25 @@ class Shelf3DView @JvmOverloads constructor(
                 if (!dragging && !longPressed) {
                     if (abs(dy) > touchSlop && abs(dy) > abs(dx)) {
                         removeCallbacks(longPressRunnable)
-                        parent?.requestDisallowInterceptTouchEvent(false)
-                    } else if (abs(dx) > touchSlop) {
+                        if (prevGroup != null || nextGroup != null) {
+                            vDragging = true
+                            pullAnimator?.cancel()
+                            enterOffset = 0f
+                            enterAlpha = 1f
+                        } else {
+                            parent?.requestDisallowInterceptTouchEvent(false)
+                        }
+                    } else if (abs(dx) > touchSlop && items.isNotEmpty()) {
                         // 横向手势始终由书架处理，首尾以阻尼回弹，不切换外层页面
                         removeCallbacks(longPressRunnable)
                         dragging = true
                         lastX = event.x
                     }
+                }
+                if (vDragging) {
+                    val can = if (dy > 0) prevGroup != null else nextGroup != null
+                    pullY = dy * (if (can) 0.5f else 0.15f)
+                    invalidate()
                 }
                 if (dragging) {
                     var delta = (event.x - lastX) / unitPx
@@ -925,7 +1142,10 @@ class Shelf3DView @JvmOverloads constructor(
             MotionEvent.ACTION_UP -> {
                 removeCallbacks(longPressRunnable)
                 vt.computeCurrentVelocity(1000)
-                if (dragging) {
+                if (vDragging) {
+                    vDragging = false
+                    releasePull(vt.yVelocity)
+                } else if (dragging) {
                     settle(vt.xVelocity)
                 } else if (!longPressed) {
                     handleTap(event.x, event.y)
@@ -935,6 +1155,10 @@ class Shelf3DView @JvmOverloads constructor(
 
             MotionEvent.ACTION_CANCEL -> {
                 removeCallbacks(longPressRunnable)
+                if (vDragging) {
+                    vDragging = false
+                    releasePull(0f)
+                }
                 if (dragging) settle(0f)
                 recycleTracker()
             }

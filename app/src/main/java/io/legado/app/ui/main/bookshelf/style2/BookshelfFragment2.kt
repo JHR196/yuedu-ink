@@ -132,7 +132,11 @@ class BookshelfFragment2() : BaseBookshelfFragment(R.layout.fragment_bookshelf2)
     private fun upShelf3D() {
         if (!isShelf3D) return
         binding.shelf3d.presetCenter(Shelf3DItems.lastKey(groupId))
-        binding.shelf3d.setItems(Shelf3DItems.of(getItems()))
+        val items = getItems()
+        binding.shelf3d.setItems(Shelf3DItems.of(items))
+        val name = if (groupId == BookGroup.IdRoot) getString(R.string.bookshelf)
+        else bookGroups.firstOrNull { it.groupId == groupId }?.groupName
+        binding.shelf3d.setGroupInfo(name?.let { "$it · ${items.size}" }, null, null)
     }
 
     override fun upGroup(data: List<BookGroup>) {

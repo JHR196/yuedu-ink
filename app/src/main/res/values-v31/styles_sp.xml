@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Welcome主题（Android 12+）：系统启动画面用纸色底 + 纸墨图标。ink_paper 自带夜间版 -->
+    <style name="AppTheme.Welcome" parent="Base.AppTheme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/ink_paper</item>
+        <item name="android:windowSplashScreenBackground">@color/ink_paper</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/sp_splash_icon</item>
+    </style>
+</resources>

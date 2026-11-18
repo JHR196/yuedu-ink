@@ -27,6 +27,7 @@ import io.legado.app.lib.theme.accentColor
 import io.legado.app.lib.theme.primaryColor
 import io.legado.app.ui.book.info.BookInfoActivity
 import io.legado.app.ui.main.bookshelf.shelf3d.Shelf3DItems
+import io.legado.app.ui.main.bookshelf.style1.BookshelfFragment1
 import io.legado.app.ui.main.bookshelf.shelf3d.Shelf3DView
 import io.legado.app.ui.main.MainViewModel
 import io.legado.app.utils.cnCompare
@@ -152,7 +153,26 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
             override fun onLongPress(item: Any) {
                 if (item is Book) openBookInfo(item)
             }
+
+            override fun onSwitchGroup(delta: Int): Boolean {
+                Shelf3DItems.remember(groupId, binding.shelf3d.centerKey)
+                return (parentFragment as? BookshelfFragment1)?.switchShelfGroup(groupId, delta) ?: false
+            }
         }
+    }
+
+    /** 刷新立体书架铭牌（分组名 · 册数）与上下层 */
+    fun upShelfLabel() {
+        if (!isShelf3D || view == null) return
+        val info = (parentFragment as? BookshelfFragment1)?.shelfNeighbors(groupId)
+        val name = info?.first
+        binding.shelf3d.setGroupInfo(
+            name?.let { "$it · ${getBooksCount()} 册" }, info?.second, info?.third
+        )
+    }
+
+    fun playShelfEnter(delta: Int) {
+        if (isShelf3D && view != null) binding.shelf3d.playEnter(delta)
     }
 
     private fun upFastScrollerBar() {
@@ -216,7 +236,10 @@ class BooksFragment() : BaseFragment(R.layout.fragment_books),
                 binding.tvEmptyMsg.isGone = list.isNotEmpty()
                 binding.refreshLayout.isEnabled = enableRefresh && list.isNotEmpty()
                 booksAdapter.setItems(list)
-                if (isShelf3D) binding.shelf3d.setItems(Shelf3DItems.of(list))
+                if (isShelf3D) {
+                    binding.shelf3d.setItems(Shelf3DItems.of(list))
+                    upShelfLabel()
+                }
                 delay(100)
             }
         }
