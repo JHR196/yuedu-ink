@@ -172,10 +172,21 @@ class ShelfCabinetView @JvmOverloads constructor(
 
     // ---------- 封面 ----------
     private val requested = HashSet<String>()
+    private val failedAt = HashMap<String, Long>()
     private val coverW = 64f.dpToPx().toInt()
     private val coverH = (coverW / 0.72f).toInt()
-    private val covers = object : LruCache<String, Bitmap>(16 * 1024 * 1024) {
+
+    /** 缓存键带上封面地址：换封面会重新加载，不会拿到旧图 */
+    private fun coverKey(item: Shelf3DView.Item) = item.key + "|" + item.cover
+    private val covers = object : LruCache<String, Bitmap>(
+        (Runtime.getRuntime().maxMemory() / 10).toInt().coerceIn(16 * 1024 * 1024, 64 * 1024 * 1024)
+    ) {
         override fun sizeOf(key: String, value: Bitmap) = value.byteCount
+
+        /** 被淘汰的封面要允许再次加载，否则这本书会一直停在默认封面 */
+        override fun entryRemoved(evicted: Boolean, key: String, oldValue: Bitmap, newValue: Bitmap?) {
+            if (evicted) requested.remove(key)
+        }
     }
     private var defaultCover: Bitmap? = null
     private val bmpPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
@@ -582,11 +593,15 @@ class ShelfCabinetView @JvmOverloads constructor(
             emptyPaint.color = ColorUtils.setAlphaComponent(gold, 0x80)
             canvas.drawText("空  置", (il + ir) / 2f, t + (floor - t) / 2f + emptyPaint.textSize / 3, emptyPaint)
         }
-        for ((k, item) in layer.books.withIndex()) {
-            val bx = x0 - hOff[i] + k * (spineW + spineGap)
-            if (bx + spineW < il || bx > ir) continue
+        // 只遍历可见范围内的书脊，书再多也不用逐本判断
+        val pitch = spineW + spineGap
+        val books = layer.books
+        val first = ((il - x0 + hOff[i] - spineW) / pitch).toInt().coerceAtLeast(0)
+        val last = ((ir - x0 + hOff[i]) / pitch).toInt().coerceAtMost(books.size - 1)
+        for (k in first..last) {
+            val bx = x0 - hOff[i] + k * pitch
             rect.set(bx, floor - sh, bx + spineW, floor)
-            drawSpine(canvas, item, rect)
+            drawSpine(canvas, books[k], rect)
         }
         canvas.drawRect(
             il, floor - 6f.dpToPx(), ir, floor,
@@ -626,33 +641,51 @@ class ShelfCabinetView @JvmOverloads constructor(
         canvas.drawText(count, ir - bookPad - countPaint.measureText(count), ty, countPaint)
     }
 
+    // 书脊明暗层的着色器：用相对书脊左上角的局部坐标，按尺寸缓存，每帧不再新建
+    private var shadeW = -1f
+    private var shadeH = -1f
+    private var roundShade: Paint? = null
+    private var headShade: Paint? = null
+    private var footShade: Paint? = null
+
+    private fun ensureShade(w: Float, h: Float) {
+        if (w == shadeW && h == shadeH && roundShade != null) return
+        shadeW = w; shadeH = h
+        val e = h * 0.08f
+        roundShade = Paint().apply {
+            shader = LinearGradient(
+                0f, 0f, w, 0f, intArrayOf(0x55000000, 0x22FFFFFF, 0x00000000, 0x66000000),
+                floatArrayOf(0f, 0.38f, 0.62f, 1f), Shader.TileMode.CLAMP
+            )
+        }
+        headShade = Paint().apply {
+            shader = LinearGradient(0f, 0f, 0f, e, 0x40000000, 0x00000000, Shader.TileMode.CLAMP)
+        }
+        footShade = Paint().apply {
+            shader = LinearGradient(0f, h - e, 0f, h, 0x00000000, 0x50000000, Shader.TileMode.CLAMP)
+        }
+    }
+
     private fun drawSpine(canvas: Canvas, item: Shelf3DView.Item, r: RectF) {
-        val bmp = cover(item)
+        val key = coverKey(item)
+        val bmp = cover(item, key)
         val stripW = (bmp.height * r.width() / r.height()).toInt().coerceIn(1, bmp.width)
         val bx = (bmp.width - stripW) / 2
         src.set(bx, 0, bx + stripW, bmp.height)
         canvas.drawBitmap(bmp, src, r, bmpPaint)
-        val color = stripColor(item, bmp, src)
+        val color = stripColor(key, bmp, src)
+        val sw = r.width()
+        val sh = r.height()
+        ensureShade(sw, sh)
+        val e = sh * 0.08f
+        canvas.save()
+        canvas.translate(r.left, r.top)
         // 圆脊：两侧暗、略偏左一线高光
-        canvas.drawRect(
-            r, grad(
-                LinearGradient(
-                    r.left, 0f, r.right, 0f,
-                    intArrayOf(0x55000000, 0x22FFFFFF, 0x00000000, 0x66000000),
-                    floatArrayOf(0f, 0.38f, 0.62f, 1f), Shader.TileMode.CLAMP
-                )
-            )
-        )
+        canvas.drawRect(0f, 0f, sw, sh, roundShade!!)
         // 书头书根压暗
-        val e = r.height() * 0.08f
-        canvas.drawRect(
-            r.left, r.top, r.right, r.top + e,
-            grad(LinearGradient(0f, r.top, 0f, r.top + e, 0x40000000, 0x00000000, Shader.TileMode.CLAMP))
-        )
-        canvas.drawRect(
-            r.left, r.bottom - e, r.right, r.bottom,
-            grad(LinearGradient(0f, r.bottom - e, 0f, r.bottom, 0x00000000, 0x50000000, Shader.TileMode.CLAMP))
-        )
+        canvas.drawRect(0f, 0f, sw, e, headShade!!)
+        canvas.drawRect(0f, sh - e, sw, sh, footShade!!)
+        canvas.restore()
         val lightInk = ColorUtils.calculateLuminance(color) < 0.45
         // 上下两组细线
         val band = if (lightInk) 0x99E2C68C.toInt() else 0x66000000
@@ -662,7 +695,7 @@ class ShelfCabinetView @JvmOverloads constructor(
             canvas.drawRect(r.left + 1f, y, r.right - 1f, y + bw, solid(band))
         }
         // 竖排书名：只有没封面（用默认封面）的书才写，有封面的让封面自己说话
-        if (covers.get(item.key) == null) {
+        if (bmp === defaultCover) {
             spineText.color = if (lightInk) 0xF2F3E6CC.toInt() else 0xE6251F18.toInt()
             spineText.setShadowLayer(
                 1.4f.dpToPx(), 0f, 0.5f.dpToPx(),
@@ -688,39 +721,48 @@ class ShelfCabinetView @JvmOverloads constructor(
     // ================= 封面 =================
 
     private val stripAvg = HashMap<String, Int>()
+    private val stripGen = HashMap<String, Int>()
 
     /** 封面：有书源封面或自定义封面就用它，没有就用默认封面（与放大后的立体书架一致） */
-    private fun cover(item: Shelf3DView.Item): Bitmap {
-        covers.get(item.key)?.let { return it }
+    private fun cover(item: Shelf3DView.Item, key: String): Bitmap {
+        covers.get(key)?.let { return it }
         val url = item.cover
-        if (!AppConfig.useDefaultCover && !url.isNullOrBlank() && requested.add(item.key)) {
-            loadCover(item, url)
+        val retryOk = System.currentTimeMillis() - (failedAt[key] ?: 0L) > 30_000L
+        if (!AppConfig.useDefaultCover && !url.isNullOrBlank() && retryOk && requested.add(key)) {
+            loadCover(item, key, url)
         }
         return defaultCover ?: renderDefault().also { defaultCover = it }
     }
 
     /** 书脊那一条的平均色，用来决定书名用浅字还是深字 */
-    private fun stripColor(item: Shelf3DView.Item, bmp: Bitmap, strip: Rect): Int {
-        val key = item.key + "|" + bmp.generationId
-        stripAvg[key]?.let { return it }
+    private fun stripColor(key: String, bmp: Bitmap, strip: Rect): Int {
+        val gen = bmp.generationId
+        if (stripGen[key] == gen) stripAvg[key]?.let { return it }
         val part = Bitmap.createBitmap(bmp, strip.left, strip.top, strip.width(), strip.height())
         val avg = Bitmap.createScaledBitmap(part, 1, 1, true).getPixel(0, 0)
+        if (part !== bmp) part.recycle()
         stripAvg[key] = avg
+        stripGen[key] = gen
         return avg
     }
 
-    private fun loadCover(item: Shelf3DView.Item, url: String) {
+    private fun loadCover(item: Shelf3DView.Item, key: String, url: String) {
         var options = RequestOptions().set(OkHttpModelLoader.loadOnlyWifiOption, false)
         item.origin?.let { options = options.set(OkHttpModelLoader.sourceOriginOption, it) }
         kotlin.runCatching {
             ImageLoader.loadBitmap(context, url).apply(options).override(coverW, coverH).centerCrop()
                 .into(object : CustomTarget<Bitmap>(coverW, coverH) {
                     override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                        covers.put(item.key, resource)
+                        failedAt.remove(key)
+                        covers.put(key, resource)
                         invalidate()
                     }
 
-                    override fun onLoadFailed(errorDrawable: Drawable?) = Unit
+                    /** 失败后 30 秒再允许重试，避免每次重绘都去请求坏链接 */
+                    override fun onLoadFailed(errorDrawable: Drawable?) {
+                        requested.remove(key)
+                        failedAt[key] = System.currentTimeMillis()
+                    }
                     override fun onLoadCleared(placeholder: Drawable?) = Unit
                 })
         }

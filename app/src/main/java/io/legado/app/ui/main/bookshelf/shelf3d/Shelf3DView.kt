@@ -271,6 +271,11 @@ class Shelf3DView @JvmOverloads constructor(
     private val cacheBytes = (Runtime.getRuntime().maxMemory() / 10).toInt()
     private val coverCache = object : LruCache<String, Bitmap>(cacheBytes) {
         override fun sizeOf(key: String, value: Bitmap) = value.byteCount
+
+        /** 被挤出缓存的封面要允许再次加载，否则这本书会一直停在生成封面 */
+        override fun entryRemoved(evicted: Boolean, key: String, oldValue: Bitmap, newValue: Bitmap?) {
+            if (evicted) requested.remove(key)
+        }
     }
     private val spineCache = object : LruCache<String, Bitmap>(cacheBytes / 6) {
         override fun sizeOf(key: String, value: Bitmap) = value.byteCount
@@ -660,7 +665,7 @@ class Shelf3DView @JvmOverloads constructor(
             if (area(dstPts) <= 0.5f) continue
             when (f) {
                 0 -> {
-                    drawBitmapFace(canvas, coverFor(item))
+                    drawBitmapFace(canvas, coverFor(item, i))
                     shade(canvas, 0.5f * s)
                 }
                 1 -> {
@@ -793,33 +798,80 @@ class Shelf3DView @JvmOverloads constructor(
 
     private fun hueOf(item: Item): Float = ((item.name.hashCode() and 0x7fffffff) % 360).toFloat()
 
-    private fun coverFor(item: Item): Bitmap {
-        val key = item.key + "|" + item.cover
-        coverCache.get(key)?.let { return it }
-        if (requested.add(key)) requestCover(item, key)
-        val genKey = item.key + "|#gen|" + item.name + "|" + item.author
-        return coverCache.get(genKey) ?: generateCover(item).also { coverCache.put(genKey, it) }
+    /** 封面分两档：滑动中、非居中的书用小图（面积约 1/6），停稳后居中那本才加载全尺寸 */
+    private val smallScale = 0.42f
+    private val failedAt = HashMap<String, Long>()
+    private var settlePosted = false
+
+    private fun settled() = animator?.isRunning != true && !dragging && !scrubbing && !vDragging
+
+    /** 滑动结束后补一次重绘，让居中的书换上全尺寸封面 */
+    private fun scheduleSettleRedraw() {
+        if (settlePosted) return
+        settlePosted = true
+        postDelayed({ settlePosted = false; invalidate() }, 150)
     }
 
-    private fun requestCover(item: Item, key: String) {
-        if (AppConfig.useDefaultCover || item.cover.isNullOrBlank() || !isAttachedToWindow) return
+    private fun canRequest(key: String): Boolean {
+        if (key in requested) return false
+        if (System.currentTimeMillis() - (failedAt[key] ?: 0L) < 30_000L) return false
+        requested.add(key)
+        return true
+    }
+
+    private fun coverFor(item: Item, i: Int): Bitmap {
+        val near = abs(i - focus) < 0.55f
+        val calm = settled()
+        if (near && !calm) scheduleSettleRedraw()
+        val wantFull = near && calm
+        val base = item.key + "|" + item.cover
+        coverCache.get("$base|F")?.let { return it }
+        val small = coverCache.get("$base|S")
+        if (wantFull) {
+            if (canRequest("$base|F")) requestCover(item, "$base|F", 1f)
+            if (small != null) return small
+        } else {
+            if (small != null) return small
+            if (canRequest("$base|S")) requestCover(item, "$base|S", smallScale)
+        }
+        val scale = if (wantFull) 1f else smallScale
+        val genKey = item.key + "|#gen|" + item.name + "|" + item.author + "|" + (if (wantFull) "F" else "S")
+        return coverCache.get(genKey) ?: generateCover(item, scale).also { coverCache.put(genKey, it) }
+    }
+
+    private fun requestCover(item: Item, key: String, scale: Float) {
+        if (AppConfig.useDefaultCover || item.cover.isNullOrBlank()) return
+        if (!isAttachedToWindow) {
+            requested.remove(key)
+            return
+        }
         var options = RequestOptions().set(OkHttpModelLoader.loadOnlyWifiOption, false)
         item.origin?.let { options = options.set(OkHttpModelLoader.sourceOriginOption, it) }
-        val w = coverW
-        val h = coverH
+        val bw = bookW
+        val w = max(1, (coverW * scale).toInt())
+        val h = max(1, (coverH * scale).toInt())
         kotlin.runCatching {
             ImageLoader.loadBitmap(context, item.cover).apply(options).override(w, h).centerCrop()
                 .into(object : CustomTarget<Bitmap>(w, h) {
                     override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                        if (w != coverW || h != coverH) return
+                        if (bw != bookW) {
+                            // 版面尺寸变了：丢弃这张，允许重新请求
+                            requested.remove(key)
+                            invalidate()
+                            return
+                        }
+                        failedAt.remove(key)
                         coverCache.put(key, composeCover(resource, w, h))
-                        val avg = Bitmap.createScaledBitmap(resource, 1, 1, true).getPixel(0, 0)
-                        spineColors[item.key] = avg
+                        if (spineColors[item.key] == null) {
+                            spineColors[item.key] = Bitmap.createScaledBitmap(resource, 1, 1, true).getPixel(0, 0)
+                        }
                         invalidate()
                     }
 
+                    /** 失败后 30 秒再允许重试，避免每帧都去请求坏链接 */
                     override fun onLoadFailed(errorDrawable: Drawable?) {
                         requested.remove(key)
+                        failedAt[key] = System.currentTimeMillis()
                     }
 
                     override fun onLoadCleared(placeholder: Drawable?) = Unit
@@ -848,9 +900,9 @@ class Shelf3DView @JvmOverloads constructor(
      * 书名与作者的竖排方式与 CoverImageView 一致
      */
     /** 分组画成布面函套：布纹底、双道金框、竖排烫金分组名 */
-    private fun generateSlipcase(item: Item): Bitmap {
-        val w = coverW
-        val h = coverH
+    private fun generateSlipcase(item: Item, scale: Float = 1f): Bitmap {
+        val w = max(1, (coverW * scale).toInt())
+        val h = max(1, (coverH * scale).toInt())
         val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val c = Canvas(out)
         val cloth = Color.HSVToColor(floatArrayOf(hueOf(item), 0.38f, if (dark) 0.30f else 0.40f))
@@ -895,10 +947,10 @@ class Shelf3DView @JvmOverloads constructor(
         return out
     }
 
-    private fun generateCover(item: Item): Bitmap {
-        if (item.data is BookGroup && item.cover.isNullOrBlank()) return generateSlipcase(item)
-        val w = coverW
-        val h = coverH
+    private fun generateCover(item: Item, scale: Float = 1f): Bitmap {
+        if (item.data is BookGroup && item.cover.isNullOrBlank()) return generateSlipcase(item, scale)
+        val w = max(1, (coverW * scale).toInt())
+        val h = max(1, (coverH * scale).toInt())
         val out = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
         val c = Canvas(out)
         val d = BookCover.defaultDrawable
