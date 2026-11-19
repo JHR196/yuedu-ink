@@ -26,19 +26,28 @@
 
 封面规则：有书源封面或自定义封面就用它，没有才用默认封面。总览里的书脊只有在用默认封面时才会写书名。
 
+## 界面截图
+
+以下为真机使用测试书籍时的截图，分别展示立体书架、书柜总览和纸墨阅读样式。
+
+<p align="center">
+  <img src="docs/screenshots/shelf.png" alt="立体书架，居中的书展示封面" width="30%">
+  <img src="docs/screenshots/cabinet.png" alt="书柜总览，按分组展示书脊" width="30%">
+  <img src="docs/screenshots/reader.png" alt="纸色背景的正文阅读界面" width="23%">
+</p>
+
 ## 安装
 
 从 [Releases](https://github.com/JHR196/yuedu-ink/releases) 下载 APK 安装即可。每次更新的内容见 [更新说明](更新说明.md)。
 
 - 包名是 `io.legado.app.shelf3d`，**可与原版阅读共存**，两边数据互相独立。
-- 安装包是 debug 签名，覆盖安装同包名的旧版会保留数据。
+- 安装包是 debug 签名，从本仓库下载的同签名旧版可覆盖安装并保留数据。若提示签名冲突，请先备份，不要直接卸载旧版。
 - 最低 Android 5.0（API 21）。
 - 已在手机和平板上实机运行。
 
 ## 书源与内容
 
-应用本身不提供任何书籍内容，本仓库也不附带书源文件，请在应用里自行导入。
-安装包里只有 Legado 自带的少量默认书源。使用须知见上游的 [免责声明](app/src/main/assets/disclaimer.md)。
+应用本身不提供任何书籍内容，本仓库和安装包保留 Legado 上游自带的少量默认示例书源，不附带额外书源合集。其他书源请在应用里自行导入。使用须知见上游的 [免责声明](app/src/main/assets/disclaimer.md)。
 
 ## 构建
 
