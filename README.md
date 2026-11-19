@@ -28,7 +28,7 @@
 
 ## 安装
 
-从 [Releases](https://github.com/JHR196/yuedu-ink/releases) 下载 APK 安装即可。
+从 [Releases](https://github.com/JHR196/yuedu-ink/releases) 下载 APK 安装即可。每次更新的内容见 [更新说明](更新说明.md)。
 
 - 包名是 `io.legado.app.shelf3d`，**可与原版阅读共存**，两边数据互相独立。
 - 安装包是 debug 签名，覆盖安装同包名的旧版会保留数据。
@@ -62,13 +62,6 @@
 
 设计规范和主题见 `app/src/main/res/` 下的 `drawable`、`values`。
 
-## 更新记录
-
-- **封面修复**：修复书柜总览和放大后的立体书架在书多时封面变回默认封面的问题；立体书架滑动改为「滑动中用小图、停稳后加载全图」，减轻卡顿。
-- **r11**：名字改回「阅读」，启动页书法字标，胡桃木书柜，封面书脊，灵敏的双指缩放，文件夹样式书柜。
-
-更早的版本见 [Releases](https://github.com/JHR196/yuedu-ink/releases)。上游自身的更新记录在 [CHANGELOG.md](CHANGELOG.md)。
-
 ## 第三方内容
 
 - 启动页字标的字形取自 Ma Shan Zheng（SIL OFL 1.1，© The Ma Shan Zheng Project Authors），已转成矢量路径，见 `app/src/main/res/drawable/sp_wordmark.xml`。
@@ -78,4 +71,4 @@
 ## 许可与上游
 
 本项目是 Legado 的衍生作品，按 **GPL-3.0** 发布，见 [LICENSE](LICENSE)。
-上游项目：<https://github.com/gedoor/legado>，上游自带的说明保留在 [README_LEGADO.md](README_LEGADO.md)。
+上游项目：<https://github.com/gedoor/legado>。
