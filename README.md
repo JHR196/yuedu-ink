@@ -1,110 +1,81 @@
-# [English](English.md) [中文](README.md)
-
-[![icon_android](https://github.com/gedoor/gedoor.github.io/blob/master/static/img/legado/icon_android.png)](https://play.google.com/store/apps/details?id=io.legado.play.release)
-<a href="https://jb.gg/OpenSourceSupport" target="_blank">
-<img width="24" height="24" src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_beam.svg?_gl=1*135yekd*_ga*OTY4Mjg4NDYzLjE2Mzk0NTE3MzQ.*_ga_9J976DJZ68*MTY2OTE2MzM5Ny4xMy4wLjE2NjkxNjMzOTcuNjAuMC4w&_ga=2.257292110.451256242.1669085120-968288463.1639451734" alt="idea"/>
-</a>
-
 <div align="center">
-<img width="125" height="125" src="https://github.com/gedoor/legado/raw/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="legado"/>  
-  
-Legado / 开源阅读
-<br>
-<a href="https://gedoor.github.io" target="_blank">gedoor.github.io</a> / <a href="https://www.legado.top/" target="_blank">legado.top</a>
-<br>
-Legado is a free and open source novel reader for Android.
+
+# 阅读 · 纸墨
+
+**把 Legado 的前端整个重做了一遍：立体书架、书柜式分组、书柜总览。**
+
+[![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0-blue.svg)](LICENSE)
+![Android 5.0+](https://img.shields.io/badge/Android-5.0%2B-3DDC84.svg)
+![Kotlin](https://img.shields.io/badge/Kotlin-7F52FF.svg)
+
+[下载安装包](https://github.com/JHR196/yuedu-ink/releases) · [构建](#构建) · [上游 Legado](https://github.com/gedoor/legado)
+
 </div>
 
-[![](https://img.shields.io/badge/-Contents:-696969.svg)](#contents) [![](https://img.shields.io/badge/-Function-F5F5F5.svg)](#Function-主要功能-) [![](https://img.shields.io/badge/-Community-F5F5F5.svg)](#Community-交流社区-) [![](https://img.shields.io/badge/-API-F5F5F5.svg)](#API-) [![](https://img.shields.io/badge/-Other-F5F5F5.svg)](#Other-其他-) [![](https://img.shields.io/badge/-Grateful-F5F5F5.svg)](#Grateful-感谢-) [![](https://img.shields.io/badge/-Interface-F5F5F5.svg)](#Interface-界面-)
+基于开源阅读 [Legado](https://github.com/gedoor/legado)（提交 `da17bb2`）。**只改前端**：布局、样式、`ui/` 下的展示代码和默认主题。书源、规则解析、网络、数据库和阅读排版引擎都没有动，书源规则与原版通用。
 
->新用户？
->
->软件不提供内容，需要您自己手动添加，例如导入书源等。
->看看 [官方帮助文档](https://www.yuque.com/legado/wiki)，也许里面就有你要的答案。
+## 它有什么不一样
 
-# Function-主要功能 [![](https://img.shields.io/badge/-Function-F5F5F5.svg)](#Function-主要功能-)
-[English](English.md)
+| | |
+|---|---|
+| **立体书架** | 3D 书架视图：书脊朝外、封面朝前，木质层板，台灯光晕，底部书签尺可拖动定位。 |
+| **书柜式分组** | 每个分组是书柜的一层，层板上有铜铭牌。上下拖动换层，点铭牌进入分组管理。 |
+| **书柜总览** | 在立体书架上双指合拢，或从右上角菜单打开「书柜总览」。一层一类，书脊整齐排列，点一层放大进入。支持「标签」和「文件夹」两种分组样式。 |
+| **全页面重做** | 浮动底栏、我的、发现、订阅、书籍详情、目录、阅读菜单、阅读样式面板、对话框，日夜两套主题。 |
+| **阅读样式** | 新增「纸墨」预设（纸纹背景、衬线字）。启动页书法字标，新图标。 |
 
-<details><summary>中文</summary>
-1.自定义书源，自己设置规则，抓取网页数据，规则简单易懂，软件内有规则说明。<br>
-2.列表书架，网格书架自由切换。<br>
-3.书源规则支持搜索及发现，所有找书看书功能全部自定义，找书更方便。<br>
-4.订阅内容,可以订阅想看的任何内容,看你想看<br>
-5.支持替换净化，去除广告替换内容很方便。<br>
-6.支持本地TXT、EPUB阅读，手动浏览，智能扫描。<br>
-7.支持高度自定义阅读界面，切换字体、颜色、背景、行距、段距、加粗、简繁转换等。<br>
-8.支持多种翻页模式，覆盖、仿真、滑动、滚动等。<br>
-9.软件开源，持续优化，无广告。
-</details>
+封面规则：有书源封面或自定义封面就用它，没有才用默认封面。总览里的书脊只有在用默认封面时才会写书名。
 
-<a href="#readme">
-    <img src="https://img.shields.io/badge/-返回顶部-orange.svg" alt="#" align="right">
-</a>
+## 安装
 
-# Community-交流社区 [![](https://img.shields.io/badge/-Community-F5F5F5.svg)](#Community-交流社区-)
+从 [Releases](https://github.com/JHR196/yuedu-ink/releases) 下载 APK 安装即可。
 
-#### Telegram
-[![Telegram-group](https://img.shields.io/badge/Telegram-%E7%BE%A4%E7%BB%84-blue)](https://t.me/yueduguanfang) [![Telegram-channel](https://img.shields.io/badge/Telegram-%E9%A2%91%E9%81%93-blue)](https://t.me/legado_channels)
+- 包名是 `io.legado.app.shelf3d`，**可与原版阅读共存**，两边数据互相独立。
+- 安装包是 debug 签名，覆盖安装同包名的旧版会保留数据。
+- 最低 Android 5.0（API 21）。
+- 已在手机和平板上实机运行。
 
-#### Discord
-[![Discord](https://img.shields.io/discord/560731361414086666?color=%235865f2&label=Discord)](https://discord.gg/VtUfRyzRXn)
+## 书源与内容
 
-#### Other
-https://www.yuque.com/legado/wiki/community
+应用本身不提供任何书籍内容，本仓库也不附带书源文件，请在应用里自行导入。
+安装包里只有 Legado 自带的少量默认书源。使用须知见上游的 [免责声明](app/src/main/assets/disclaimer.md)。
 
-<a href="#readme">
-    <img src="https://img.shields.io/badge/-返回顶部-orange.svg" alt="#" align="right">
-</a>
+## 构建
 
-# API [![](https://img.shields.io/badge/-API-F5F5F5.svg)](#API-)
-* 阅读3.0 提供了2种方式的API：`Web方式`和`Content Provider方式`。您可以在[这里](api.md)根据需要自行调用。 
-* 可通过url唤起阅读进行一键导入,url格式: legado://import/{path}?src={url}
-* path类型: bookSource,rssSource,replaceRule,textTocRule,httpTTS,theme,readConfig,dictRule,[addToBookshelf](/app/src/main/java/io/legado/app/ui/association/AddToBookshelfDialog.kt)
-* path类型解释: 书源,订阅源,替换规则,本地txt小说目录规则,在线朗读引擎,主题,阅读排版,添加到书架
+需要 JDK 17 和 Android SDK。构建时加 `-Pshelf3d` 才会得到 `.shelf3d` 包名的实验包：
 
-<a href="#readme">
-    <img src="https://img.shields.io/badge/-返回顶部-orange.svg" alt="#" align="right">
-</a>
+```bash
+./gradlew :app:assembleAppDebug -Pshelf3d
+```
 
-# Other-其他 [![](https://img.shields.io/badge/-Other-F5F5F5.svg)](#Other-其他-)
-##### 免责声明
-https://gedoor.github.io/Disclaimer
+产物在 `app/build/outputs/apk/app/debug/`。不加 `-Pshelf3d` 则按上游默认配置构建。
 
-##### 阅读3.0
-* [书源规则](https://mgz0227.github.io/The-tutorial-of-Legado/)
-* [更新日志](/app/src/main/assets/updateLog.md)
-* [帮助文档](/app/src/main/assets/web/help/md/appHelp.md)
-* [web端书架](https://github.com/gedoor/legado_web_bookshelf)
-* [web端源编辑](https://github.com/gedoor/legado_web_source_editor)
+## 代码在哪
 
-<a href="#readme">
-    <img src="https://img.shields.io/badge/-返回顶部-orange.svg" alt="#" align="right">
-</a>
+书柜相关的核心代码都在 `app/src/main/java/io/legado/app/ui/main/bookshelf/shelf3d/`：
 
-# Grateful-感谢 [![](https://img.shields.io/badge/-Grateful-F5F5F5.svg)](#Grateful-感谢-)
-> * org.jsoup:jsoup
-> * cn.wanghaomiao:JsoupXpath
-> * com.jayway.jsonpath:json-path
-> * com.github.gedoor:rhino-android
-> * com.squareup.okhttp3:okhttp
-> * com.github.bumptech.glide:glide
-> * org.nanohttpd:nanohttpd
-> * org.nanohttpd:nanohttpd-websocket
-> * cn.bingoogolapple:bga-qrcode-zxing
-> * com.jaredrummler:colorpicker
-> * org.apache.commons:commons-text
-> * io.noties.markwon:core
-> * io.noties.markwon:image-glide
-> * com.hankcs:hanlp
-> * com.positiondev.epublib:epublib-core
-<a href="#readme">
-    <img src="https://img.shields.io/badge/-返回顶部-orange.svg" alt="#" align="right">
-</a>
+| 文件 | 内容 |
+|---|---|
+| `Shelf3DView.kt` | 立体书架：透视绘制、封面与书脊、触摸与滑动 |
+| `ShelfCabinetView.kt` | 书柜总览：胡桃木书柜、层板、书脊排列、双指缩放 |
+| `Shelf3DItems.kt` | 把书和分组转成书架上的条目 |
 
-# Interface-界面 [![](https://img.shields.io/badge/-Interface-F5F5F5.svg)](#Interface-界面-)
-<img src="https://github.com/gedoor/gedoor.github.io/blob/master/static/img/legado/%E9%98%85%E8%AF%BB%E7%AE%80%E4%BB%8B1.jpg" width="270"><img src="https://github.com/gedoor/gedoor.github.io/blob/master/static/img/legado/%E9%98%85%E8%AF%BB%E7%AE%80%E4%BB%8B2.jpg" width="270"><img src="https://github.com/gedoor/gedoor.github.io/blob/master/static/img/legado/%E9%98%85%E8%AF%BB%E7%AE%80%E4%BB%8B3.jpg" width="270">
-<img src="https://github.com/gedoor/gedoor.github.io/blob/master/static/img/legado/%E9%98%85%E8%AF%BB%E7%AE%80%E4%BB%8B4.jpg" width="270"><img src="https://github.com/gedoor/gedoor.github.io/blob/master/static/img/legado/%E9%98%85%E8%AF%BB%E7%AE%80%E4%BB%8B5.jpg" width="270"><img src="https://github.com/gedoor/gedoor.github.io/blob/master/static/img/legado/%E9%98%85%E8%AF%BB%E7%AE%80%E4%BB%8B6.jpg" width="270">
+设计规范和主题见 `app/src/main/res/` 下的 `drawable`、`values`。
 
-<a href="#readme">
-    <img src="https://img.shields.io/badge/-返回顶部-orange.svg" alt="#" align="right">
-</a>
+## 更新记录
+
+- **封面修复**：修复书柜总览和放大后的立体书架在书多时封面变回默认封面的问题；立体书架滑动改为「滑动中用小图、停稳后加载全图」，减轻卡顿。
+- **r11**：名字改回「阅读」，启动页书法字标，胡桃木书柜，封面书脊，灵敏的双指缩放，文件夹样式书柜。
+
+更早的版本见 [Releases](https://github.com/JHR196/yuedu-ink/releases)。上游自身的更新记录在 [CHANGELOG.md](CHANGELOG.md)。
+
+## 第三方内容
+
+- 启动页字标的字形取自 Ma Shan Zheng（SIL OFL 1.1，© The Ma Shan Zheng Project Authors），已转成矢量路径，见 `app/src/main/res/drawable/sp_wordmark.xml`。
+- 书柜总览的交互思路参考过 Folia 播放器的唱片墙；画面和代码均为原创，没有使用 Folia 的代码或素材。
+- 其余代码和图形资源由本项目原创或生成。
+
+## 许可与上游
+
+本项目是 Legado 的衍生作品，按 **GPL-3.0** 发布，见 [LICENSE](LICENSE)。
+上游项目：<https://github.com/gedoor/legado>，上游自带的说明保留在 [README_LEGADO.md](README_LEGADO.md)。
